@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+</head>
+<title>Login</title>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" th:href="@{/css/login.css}">
+<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/customStyle.css}">
+
+<body>
+	<!-- header-start -->
+	<header>
+		<div class="header-area ">
+			<div id="sticky-header" class="main-header-area">
+				<div class="container-fluid p-0">
+					<div class="row align-items-center no-gutters">
+						<div class="col-xl-5 col-lg-6">
+							<div class="main-menu  d-none d-lg-block">
+								<nav>
+									<ul id="navigation">
+										<li><a th:href="@{/}">home</a></li>
+										<li><a href="rooms.html">rooms</a></li>
+										<li><a href="about.html">About</a></li>
+
+										<li><a href="contact.html">Contact</a></li>
+									</ul>
+								</nav>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+	<!-- header-end -->
+	<div class="login-wrap">
+
+		<div class="login-html">
+			<div th:if="${error!=null}">
+				<div id="erroAlert" class="alert alert-danger" role="alert" th:text="${error}">
+
+				</div>
+			</div>
+			<input id="tab-1" type="radio" name="tab" class="sign-in" checked><label for="tab-1" class="tab">Sign
+				In</label>
+			<input id="tab-2" type="hidden" name="tab" class="sign-up"><label for="tab-2" class="tab">Sign Up</label>
+			<div class="login-form">
+				<form th:object="${loginRequest}" action="/admin/login" method="post">
+					<div class="sign-in-htm">
+						<div class="group">
+							<label for="user" class="label">Username</label>
+							<input id="user" th:field="*{username}" type="text" class="input" required>
+						</div>
+						<div class="group">
+							<label for="pass" class="label">Password</label>
+							<input id="pass" th:field="*{password}" type="password" class="input" data-type="password"
+								required>
+						</div>
+						<div class="group">
+							<input id="check" type="checkbox" class="check" checked>
+							<label for="check"><span class="icon"></span> Keep me Signed in</label>
+						</div>
+						<div class="group">
+							<input type="submit" class="button" value="Sign In">
+						</div>
+
+						<div class="hr"></div>
+
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

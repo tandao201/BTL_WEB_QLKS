@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8">
+	<title>Quản lí phòng</title>
+	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+	<meta content="" name="keywords">
+	<meta content="" name="description">
+
+	<!-- Favicon -->
+	<link th:href="@{/admin/img/favicon.ico}" rel="icon">
+
+	<!-- Google Web Fonts -->
+	<link rel="preconnect" th:href="@{https://fonts.googleapis.com}">
+	<link rel="preconnect" th:href="@{https://fonts.gstatic.com}" crossorigin>
+	<link th:href="@{https://fonts.googleapis.com/css2?family=Montserrat:ital@1&display=swap}" rel="stylesheet">
+
+	<!-- Icon Font Stylesheet -->
+	<link th:href="@{https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css}" rel="stylesheet">
+	<link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css}" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+	<!-- Libraries Stylesheet -->
+	<link th:href="@{/admin/lib/owlcarousel/assets/owl.carousel.min.css}" rel="stylesheet}">
+	<link th:href="@{/admin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css}" rel="stylesheet" />
+
+	<!-- Customized Bootstrap Stylesheet -->
+	<link th:href="@{/admin/css/bootstrap.min.css}" rel="stylesheet">
+
+	<!-- Template Stylesheet -->
+	<link th:href="@{/admin/css/style.css}" rel="stylesheet">
+	<link rel="stylesheet" th:href="@{/css/account.css}">
+</head>
+
+<body onload="hideAdd()">
+	<div class="container-xxl position-relative bg-white d-flex p-0">
+		<!-- Spinner Start -->
+		<div id="spinner"
+			class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+			<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+				<span class="sr-only">Loading...</span>
+			</div>
+		</div>
+		<!-- Spinner End -->
+
+
+		<!-- Sidebar Start -->
+		<div class="sidebar pe-6 pb-3">
+			<nav class="navbar bg-light navbar-light">
+				<a href="/admin/login/account" id="reload" class="navbar-brand mx-4 mb-3">
+					<h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>Tài khoản</h3>
+				</a>
+				<div class="d-flex align-items-center ms-4 mb-4">
+					<div class="position-relative">
+						<img class="rounded-circle" th:src="${user.avatar}" alt="" style="width: 40px; height: 40px;">
+						<div
+							class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
+						</div>
+					</div>
+					<div class="ms-3">
+						<h6 class="mb-0" th:text="${user.name}"></h6>
+						<span th:text="${user.role}"></span>
+					</div>
+				</div>
+				<div class="navbar-nav w-100">
+
+					<a href="/admin/room-manage" class="nav-item nav-link active"><i
+							class="fa-solid fa-door-open"></i>Quản lí phòng</a>
+					<a href="/admin/room-manage/room-category" class="nav-item nav-link"><i class="fa-solid fa-door-open"></i>Loại phòng</a>
+					<a href="#" class="nav-item nav-link"><i class="fa-solid fa-people-roof"></i>Quản lí khách hàng</a>
+					<a href="#" class="nav-item nav-link"><i class="fa-solid fa-suitcase"></i>Quản lí đặt phòng</a>
+					<a th:href="@{/}" class="nav-item nav-link"><i class="fa-solid fa-house"></i>Trang chủ</a>
+					<a href="/admin/login/account" class="nav-item nav-link "><i class="fa-solid fa-user"></i>Cá
+						nhân</a>
+					<a href="/admin/password" class="nav-item nav-link"><i class="fa-solid fa-lock"></i>Đổi mật khẩu</a>
+
+					<form id="myform" method="post" action="/admin/login/logout"></form>
+					<a onclick="document.getElementById('myform').submit();" class="nav-item nav-link"><i
+							class="fa-solid fa-right-from-bracket"></i>Đăng xuất</a>
+
+				</div>
+			</nav>
+		</div>
+		<!-- Sidebar End -->
+
+
+		<!-- Content Start -->
+		<div class="content" style="position: relative;" >
+			<!-- Navbar Start -->
+			<nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+				<a href="index.html" class="navbar-brand d-flex d-lg-none me-4">
+					<h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
+				</a>
+				<a href="#" class="sidebar-toggler flex-shrink-0">
+					<i class="fa fa-bars"></i>
+				</a>
+				<form class="d-none d-md-flex ms-4">
+					<input class="form-control border-0" type="search" placeholder="Search">
+				</form>
+				<div class="navbar-nav align-items-center ms-auto">
+
+
+
+				</div>
+			</nav>
+			<!-- Navbar End -->
+
+
+			<div th:if="${success!=null}">
+				<div id="erroAlert" class="alert alert-success" role="alert" th:text="${success}">
+
+				</div>
+			</div>
+
+
+
+			<!-- room table start -->
+			<div  class="col-sm-12 col-xl-11" id="room-table">
+				<div  style="margin: 20pt;position: relative;" class="bg-light rounded h-100 p-4">
+					<h5 style="display: inline-block;" class="mb-4">Danh sách phòng</h5>
+					<a><button style="float: right;margin: 5pt;" id="bt-add" type="button" class="btn btn-success">Thêm
+							mới
+							phòng</button></a>
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th scope="col">ID</th>
+								<th scope="col">Tên phòng</th>
+								<th scope="col">Giá cả</th>
+								<th scope="col">Số lượng</th>
+								<th scope="col">Loại phòng</th>
+								<th scope="col">Trạng thái</th>
+								<th scope="col"></th>
+								<th scope="col"></th>
+								<th scope="col"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th scope="row">1</th>
+								<td>Ai do</td>
+								<td>2000</td>
+								<td>28</td>
+								<td>Phòng đôi</td>
+								<td>Tích xanh</td>
+								<td><button type="button" class="btn btn-outline-warning">Edit</button></td>
+								<td><button type="button" class="btn btn-outline-danger">Delete</button></td>
+								<td><button id="bt-vohieu" type="button" class="btn btn-outline-secondary">Vô hiệu
+										hóa</button>
+									<button type="button" id="bt-kichhoat" class="btn btn-outline-success">Kích
+										hoạt</button>
+								</td>
+
+							</tr>
+							<tr>
+								<th scope="row">2</th>
+								<td>Mark</td>
+								<td>Otto</td>
+								<td>mark@email.com</td>
+							</tr>
+							<tr>
+								<th scope="row">3</th>
+								<td>Jacob</td>
+								<td>Thornton</td>
+								<td>jacob@email.com</td>
+							</tr>
+						</tbody>
+					</table>
+				</div >
+				<!-- Pagination start -->
+						<nav style="position: absolute;bottom: 0;margin-bottom: 30pt;right: 0;margin-right: 84pt;" aria-label="Page navigation example">
+							<ul class="pagination justify-content-right">
+								<li class="page-item disabled">
+									<a class="page-link" href="#" tabindex="-1">Previous</a>
+								</li>
+								<li class="page-item"><a class="page-link" href="#">1</a></li>
+								<li class="page-item"><a class="page-link" href="#">2</a></li>
+								<li class="page-item"><a class="page-link" href="#">3</a></li>
+								<li class="page-item">
+									<a class="page-link" href="#">Next</a>
+								</li>
+							</ul>
+						</nav>
+						<!-- Pagination end -->
+			</div>
+
+			<!-- room table  end -->
+
+			<!-- room add form start -->
+			<div class="page-content page-container" id="add-form">
+				<div class="padding">
+					<div class="row container d-flex justify-content-center">
+						<div class="col-xl-6 col-md-12">
+							<div class="card user-card-full">
+								<div class="row m-l-0 m-r-0">
+									<div class="col-sm-4 bg-c-lite-green user-profile">
+										<div class="card-block text-center text-white">
+											
+											<h3 class="f-w-600 " style="color: white;">Thêm phòng</h3>
+											<i class=" mdi mdi-square-edit-outline feather icon-edit m-t-10 f-16"></i>
+										</div>
+									</div>
+									<div class="col-sm-8">
+										<div class="card-block">
+											<div class="row">
+												<form method="post" action="/admin/room-manage" th:object="${room}">
+													<div class="col-sm-6">
+														<input name="username" size="50" type="hidden"
+															class="text f-w-400">
+														<p class="m-b-10 f-w-600">Tên phòng</p>
+														<input name="roomName" th:field="*{name}" type="text" size="50"
+															class="text f-w-400" required>
+													</div>
+													<div class="col-sm-6">
+														<p class="m-b-10 f-w-600">Hình ảnh</p>
+														<input name="image" th:field="*{image}" id="image" type="text" size="50"
+															class="text f-w-400" required></input>
+													</div>
+													<div class="col-sm-6">
+														<p class="m-b-10 f-w-600">Giá</p>
+														<input name="price" th:field="*{price}" id="price" type="number"
+															class="text f-w-400"></input>
+													</div>
+													<div class="col-sm-6">
+														<p class="m-b-10 f-w-600">Số lượng</p>
+														<input name="quantity" th:field="*{quantity}" id="quantity" type="number"
+															class="text f-w-400"></input>
+													</div>
+
+													<div class="col-sm-6">
+														<p class="m-b-10 f-w-600">Loại phòng</p>
+														
+														<select th:field="*{categoryId}" class="form-select form-select-sm"
+															aria-label=".form-select-sm example">
+															
+															<option  th:each="category : ${categories}" 
+																th:value="${category.idCate}"
+																th:utext="${category.nameCate}"
+															></option>
+														</select>
+													</div>
+													<div class="col-sm-6">
+														<p class="m-b-10 f-w-600">Mô tả</p>
+														<textarea name="description" th:field="*{description}" id="description"  rows="5" cols="51"
+															class="text f-w-400" required></textarea>
+													</div>
+													<button type="submit" onclick="validateQuantity()"
+														style="margin-top: 8pt;"
+														class="btn btn-outline-success">Lưu</button>
+													<button type="button" id="bt-huy" style="margin-top: 8pt;"
+														class="btn btn-outline-danger">Hủy</button>
+												</form>
+											</div>
+
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- room add form end -->
+
+
+
+			<!-- Footer Start -->
+			<div style="position: absolute;bottom: 0;" class="container-fluid pt-2 px-2">
+				<div class="bg-light rounded-top p-2">
+					<div class="row">
+						<div class="col-12 col-sm-6 text-center text-sm-start">
+							&copy; <a href="#">Your Site Name</a>, All Right Reserved.
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<!-- Footer End -->
+		</div>
+		<!-- Content End -->
+
+
+
+
+		<!-- Back to Top -->
+		<a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+	</div>
+
+	<!-- JavaScript Libraries -->
+	<script th:src="@{https://code.jquery.com/jquery-3.4.1.min.js}"></script>
+	<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/admin/lib/chart/chart.min.js}"></script>
+	<script th:src="@{/admin/lib/easing/easing.min.js}"></script>
+	<script th:src="@{/admin/lib/waypoints/waypoints.min.js}"></script>
+	<script th:src="@{/admin/lib/owlcarousel/owl.carousel.min.js}"></script>
+	<script th:src="@{/admin/lib/tempusdominus/js/moment.min.js}"></script>
+	<script th:src="@{/admin/lib/tempusdominus/js/moment-timezone.min.js}"></script>
+	<script th:src="@{/admin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js}"></script>
+
+	<!-- Template Javascript -->
+	<script th:src="@{/admin/js/main.js}"></script>
+
+	<script>
+		$("#bt-kichhoat").click(function (e) {
+			e.preventDefault();
+			$("#bt-kichhoat").hide();
+			$("#bt-vohieu").show();
+		});
+
+		$("#bt-vohieu").click(function (e) {
+			e.preventDefault();
+			$("#bt-kichhoat").show();
+			$("#bt-vohieu").hide();
+		});
+
+		$("#bt-add").click(function (e) {
+			e.preventDefault();
+			$("#add-form").show();
+			$("#room-table").hide();
+		});
+
+		function hideAdd() {
+			$("#add-form").hide();
+		}
+		$("#bt-huy").click(function (e) {
+			e.preventDefault();
+			$("#add-form").hide();
+			$("#room-table").show();
+		});
+
+
+		function validateQuantity() {
+			var price = document.getElementById("price")
+				, quantity = document.getElementById("quantity");
+			var priceInt = parseInt(price.value);
+			var quantityInt = parseInt(quantity.value);
+			if (priceInt <= 0) {
+				price.setCustomValidity("Nhập số lớn hơn 0!");
+				return false;
+			} else if (quantityInt <= 0) {
+				price.setCustomValidity('');
+				quantity.setCustomValidity("Nhập số lớn hơn 0!");
+				return false;
+			} else {
+				price.setCustomValidity('');
+				quantity.setCustomValidity('');
+				return true;
+			}
+
+
+		}
+	</script>
+</body>
+
+</html>
