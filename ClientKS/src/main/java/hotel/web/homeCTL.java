@@ -1,6 +1,9 @@
 package hotel.web;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
+import hotel.model.Room;
+import hotel.model.RoomDto;
 import hotel.model.UserDto;
 
 @Controller
@@ -17,6 +22,12 @@ public class homeCTL {
 	@GetMapping("/")
 	public String home(Model model) {
 		LinkedHashMap<String, String> curUser = haveCurrentUser();
+		List<Room> sugRooms = getRoomSuggest();
+		List<RoomDto> dtoSugs = new ArrayList<>();
+		for (Room room : sugRooms) {
+			dtoSugs.add(toRoomDto(room));
+		}
+		model.addAttribute("rooms", dtoSugs);
 		if (curUser == null) {
 			model.addAttribute("user", null);
 
@@ -31,6 +42,52 @@ public class homeCTL {
 		return "customer/index";
 	}
 
+	@GetMapping("/about")
+	public String about(Model model) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser();
+		List<Room> sugRooms = getRoomSuggest();
+		List<RoomDto> dtoSugs = new ArrayList<>();
+		for (Room room : sugRooms) {
+			dtoSugs.add(toRoomDto(room));
+		}
+		model.addAttribute("rooms", dtoSugs);
+		if (curUser == null) {
+			model.addAttribute("user", null);
+
+		} else {
+			UserDto user = new UserDto();
+			user.setEmail(curUser.get("email"));
+			user.setName(curUser.get("name"));
+			user.setAvatar(curUser.get("avatar"));
+			user.setPhone(curUser.get("phone"));
+			model.addAttribute("user", user);
+		}
+		return "customer/about";
+	}
+
+	@GetMapping("/contact")
+	public String contact(Model model) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser();
+		List<Room> sugRooms = getRoomSuggest();
+		List<RoomDto> dtoSugs = new ArrayList<>();
+		for (Room room : sugRooms) {
+			dtoSugs.add(toRoomDto(room));
+		}
+		model.addAttribute("rooms", dtoSugs);
+		if (curUser == null) {
+			model.addAttribute("user", null);
+
+		} else {
+			UserDto user = new UserDto();
+			user.setEmail(curUser.get("email"));
+			user.setName(curUser.get("name"));
+			user.setAvatar(curUser.get("avatar"));
+			user.setPhone(curUser.get("phone"));
+			model.addAttribute("user", user);
+		}
+		return "customer/contact";
+	}
+
 	@SuppressWarnings("unchecked")
 	public LinkedHashMap<String, String> haveCurrentUser() {
 		String urlCurUser = "http://localhost:8081/login/currentUser";
@@ -41,5 +98,28 @@ public class homeCTL {
 		} else {
 			return curUser;
 		}
+	}
+
+	public List<Room> getRoomSuggest() {
+		String url = "http://localhost:8081/api/room/suggest";
+		List<Room> rooms = Arrays.asList(rest.getForObject(url, Room[].class));
+		return rooms;
+	}
+
+	private RoomDto toRoomDto(Room room) {
+		RoomDto dto = new RoomDto();
+		dto.setId(room.getId());
+		dto.setName(room.getName());
+		dto.setPrice(room.getPrice());
+		dto.setImage(room.getImage());
+		dto.setLocked(room.getLocked());
+		dto.setEnabled(room.getEnabled());
+		dto.setQuantity(room.getQuantity());
+		dto.setCategoryId(room.getCategoryId());
+		dto.setCategory(room.getCategory());
+		dto.setRoomBookings(room.getRoomBookings());
+		String[] des = room.getDescription().split("\\|");
+		dto.setDescription(des);
+		return dto;
 	}
 }

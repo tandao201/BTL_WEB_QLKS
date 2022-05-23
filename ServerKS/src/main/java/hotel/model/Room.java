@@ -1,10 +1,17 @@
 package hotel.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -33,6 +40,10 @@ public class Room {
 
 	private Long categoryId;
 	private String category;
+
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "rb_id", referencedColumnName = "id")
+	List<RoomBooking> roomBookings = new ArrayList<>();
 
 	public Room(String name, Long price, String description, String image, Boolean locked, Boolean enabled,
 			int quantity, String category, Long categoryId) {

@@ -115,7 +115,9 @@ public class LoginController {
 	public String updateCurUser(@RequestParam("username") String username, @RequestParam("email") String email,
 			@RequestParam("phone") String phone, @RequestParam("avatar") String avatar,
 			@RequestParam("name") String name, Model model) {
-		UpdateRequestDto updateRequestDto = new UpdateRequestDto(username, email, phone, avatar, name);
+		LinkedHashMap<String, String> curUser = haveCurrentUser();
+		UpdateRequestDto updateRequestDto = new UpdateRequestDto(username, email, phone, avatar, name,
+				curUser.get("role"));
 		String url = "http://localhost:8081/users";
 		Map<String, String> param = new HashMap<>();
 		param.put("username", username);

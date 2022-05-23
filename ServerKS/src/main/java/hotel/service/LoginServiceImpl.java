@@ -143,6 +143,14 @@ public class LoginServiceImpl implements UserDetailsService {
 
 		if (userExist.isPresent()) {
 			User user = userExist.get();
+			if (user.getLocked()) {
+				Map<String, String> error = new HashMap<>();
+				error.put("error", "Accout with this username is locked!");
+				aiApiResponse.setData(error);
+				aiApiResponse.setData(error);
+				aiApiResponse.setStatus(404);
+				return aiApiResponse;
+			}
 			if (bCryptPasswordEncoder.matches(dto.getPassword(), user.getPassword())) {
 				UserDto userDto = UserMapper.toUserDto(user);
 				Map<String, String> account = new HashMap<>();

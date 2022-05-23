@@ -41,4 +41,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	@Query(value = "SELECT * FROM USER WHERE actived=1 and role like CONCAT(:role) ", nativeQuery = true)
 	Optional<User> findByActivedAndRole(String role);
+
 }

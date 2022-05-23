@@ -3,6 +3,7 @@ package hotel.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -48,6 +49,12 @@ public class RoomController {
 		return ResponseEntity.ok(rooms);
 	}
 
+	@GetMapping("/suggest")
+	public ResponseEntity<?> getRoomSuggest() {
+		List<Room> rooms = roomService.getRoomSuggest();
+		return ResponseEntity.ok(rooms);
+	}
+
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getUserById(@PathVariable String id) {
 		Long idUp = Long.parseLong(id);
@@ -67,5 +74,11 @@ public class RoomController {
 	public void deleteRoom(@PathVariable("id") String id) {
 		Long idUp = Long.valueOf(id);
 		roomService.deleteRoom(idUp);
+	}
+
+	@GetMapping("/roomPage")
+	public ResponseEntity<?> getPageRoom(Pageable pageable) {
+
+		return ResponseEntity.ok(roomService.getPageRoom(pageable));
 	}
 }

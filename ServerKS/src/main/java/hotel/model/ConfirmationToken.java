@@ -2,6 +2,7 @@ package hotel.model;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,7 +31,7 @@ public class ConfirmationToken {
 	private LocalDateTime expiredAt;
 	private LocalDateTime confirmedAt;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(nullable = false, name = "user_id")
 	private User user;
 

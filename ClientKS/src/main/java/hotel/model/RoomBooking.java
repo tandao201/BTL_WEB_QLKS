@@ -2,9 +2,6 @@ package hotel.model;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -16,12 +13,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Booking {
-	@OneToOne
-	private String idRoom;
-	@ManyToOne
-	private String idUser;
+public class RoomBooking {
+	private Long id;
 	private LocalDateTime checkInAt;
 	private LocalDateTime checkOutAt;
-
+	private Long totalMoney;
+	private boolean status;
 }

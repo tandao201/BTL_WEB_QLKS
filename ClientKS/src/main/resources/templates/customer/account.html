@@ -64,11 +64,11 @@
 					</div>
 				</div>
 				<div class="navbar-nav w-100">
-					<a href="/login/account" class="nav-item nav-link active"><i class="fa-solid fa-user"></i>Profile</a>
-					<a href="#" class="nav-item nav-link"><i class="fa-solid fa-suitcase"></i></i>Đơn đặt phòng</a>
+					<a href="/login/account" class="nav-item nav-link active"><i class="fa-solid fa-user"></i>Cá nhân</a>
+					<a href="/revervation" class="nav-item nav-link"><i class="fa-solid fa-suitcase"></i></i>Đơn đặt phòng</a>
 					<a th:href="@{/password}" class="nav-item nav-link"><i class="fa-solid fa-lock"></i>Đổi mật khẩu</a>
 					<a th:href="@{/}" class="nav-item nav-link"><i class="fa-solid fa-house"></i>Trang chủ</a>
-					<a th:href="@{/}" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Phòng</a>
+					<a href="/rooms" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Phòng</a>
 					<form id="myform" method="post" action="/login/logout"></form>
 					<a onclick="document.getElementById('myform').submit();" class="nav-item nav-link"><i
 							class="fa-solid fa-right-from-bracket"></i>Đăng xuất</a>

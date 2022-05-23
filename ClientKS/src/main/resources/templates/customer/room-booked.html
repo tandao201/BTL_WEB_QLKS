@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8">
+	<title>Đơn đặt phòng</title>
+	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+	<meta content="" name="keywords">
+	<meta content="" name="description">
+
+	<!-- Favicon -->
+	<link th:href="@{/admin/img/favicon.ico}" rel="icon">
+
+	<!-- Google Web Fonts -->
+	<link rel="preconnect" th:href="@{https://fonts.googleapis.com}">
+	<link rel="preconnect" th:href="@{https://fonts.gstatic.com}" crossorigin>
+	<link th:href="@{https://fonts.googleapis.com/css2?family=Montserrat:ital@1&display=swap}" rel="stylesheet">
+
+	<!-- Icon Font Stylesheet -->
+	<link th:href="@{https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css}" rel="stylesheet">
+	<link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css}" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+	<!-- Libraries Stylesheet -->
+	<link th:href="@{/admin/lib/owlcarousel/assets/owl.carousel.min.css}" rel="stylesheet}">
+	<link th:href="@{/admin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css}" rel="stylesheet" />
+
+	<!-- Customized Bootstrap Stylesheet -->
+	<link th:href="@{/admin/css/bootstrap.min.css}" rel="stylesheet">
+
+	<!-- Template Stylesheet -->
+	<link th:href="@{/admin/css/style.css}" rel="stylesheet">
+	<link rel="stylesheet" th:href="@{/css/account.css}">
+</head>
+
+<body onload="hideAdd()">
+	<div class="container-xxl position-relative bg-white d-flex p-0">
+		<!-- Spinner Start -->
+		<div id="spinner"
+			class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+			<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+				<span class="sr-only">Loading...</span>
+			</div>
+		</div>
+		<!-- Spinner End -->
+
+
+		<!-- Sidebar Start -->
+		<div class="sidebar pe-6 pb-3">
+			<nav class="navbar bg-light navbar-light">
+				<a href="/admin/login/account" id="reload" class="navbar-brand mx-4 mb-3">
+					<h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>Tài khoản</h3>
+				</a>
+				<div class="d-flex align-items-center ms-4 mb-4">
+					<div class="position-relative">
+						<img class="rounded-circle" th:src="${user.avatar}" alt="" style="width: 40px; height: 40px;">
+						<div
+							class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
+						</div>
+					</div>
+					<div class="ms-3">
+						<h6 class="mb-0" th:text="${user.name}"></h6>
+						<span th:text="${user.role}"></span>
+					</div>
+				</div>
+				<div class="navbar-nav w-100">
+
+					<a href="/login/account" class="nav-item nav-link "><i class="fa-solid fa-user"></i>Profile</a>
+					<a href="/revervation" class="nav-item nav-link active"><i class="fa-solid fa-suitcase"></i></i>Đơn đặt phòng</a>
+					<a th:href="@{/password}" class="nav-item nav-link "><i class="fa-solid fa-lock"></i>Đổi mật khẩu</a>
+					<a th:href="@{/}" class="nav-item nav-link"><i class="fa-solid fa-house"></i>Trang chủ</a>
+					<a href="/rooms" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Phòng</a>
+					<form id="myform" method="post" action="/login/logout"></form>
+					<a onclick="document.getElementById('myform').submit();" class="nav-item nav-link"><i
+							class="fa-solid fa-right-from-bracket"></i>Đăng xuất</a>
+
+				</div>
+			</nav>
+		</div>
+		<!-- Sidebar End -->
+
+
+		<!-- Content Start -->
+		<div class="content" style="position: relative;" >
+			<!-- Navbar Start -->
+			<nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+				<a href="index.html" class="navbar-brand d-flex d-lg-none me-4">
+					<h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
+				</a>
+				<a href="#" class="sidebar-toggler flex-shrink-0">
+					<i class="fa fa-bars"></i>
+				</a>
+				<form class="d-none d-md-flex ms-4">
+					<input class="form-control border-0" type="search" placeholder="Search">
+				</form>
+				<div class="navbar-nav align-items-center ms-auto">
+
+
+
+				</div>
+			</nav>
+			<!-- Navbar End -->
+
+
+			<div th:if="${success!=null}">
+				<div id="erroAlert" class="alert alert-success" role="alert" th:text="${success}">
+
+				</div>
+			</div>
+
+
+
+			<!-- room table start -->
+			<div  class="col-sm-12 col-xl-11" id="room-table">
+				<div  style="margin: 20pt;position: relative;" class="bg-light rounded h-100 p-4">
+					<h5 style="display: inline-block;" class="mb-4">Danh sách phòng</h5>
+					<a><button style="float: right;margin: 5pt;" id="bt-add" type="button" class="btn btn-success">Đặt phòng</button></a>
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th scope="col">ID</th>
+								<th scope="col">Tên phòng</th>
+								<th scope="col">Loại phòng</th>
+								<th scope="col">Ngày đặt</th>
+								<th scope="col">Ngày đi</th>
+								<th scope="col">Tiền thanh toán ($)</th>
+								<th scope="col">Trạng thái</th>
+								<th scope="col"></th>
+							</tr>
+						</thead>
+						<tbody>
+						<th:block th:each="room : ${rooms}">
+							<tr>
+								<th scope="row" th:text="${room.id}"></th>
+								<td th:text="${room.name}">Phòng uyên ương</td>
+								<td th:text="${room.category}" > Phòng đôi</td>
+								<td th:text="${room.checkInAt}">2022-03-02</td>
+								<td th:text="${room.checkOutAt}">2022-03-02</td>
+								<td th:text="${room.price}">300</td >
+								<th:block th:if="${room.status==false}">
+									<td >Chưa thanh toán</td>
+								</th:block>
+								<th:block th:unless="${room.status==false}">
+									<td >Đã thanh toán</td>
+								</th:block>
+								
+								
+								
+							</tr>
+						</th:block>
+							
+							
+						</tbody>
+					</table>
+				</div >
+				
+			</div>
+
+			<!-- room table  end -->
+
+			<!-- Pagination start -->
+	<nav style="position: absolute;bottom: 0;margin-bottom: 27pt;right: 0;margin-right: 104pt;"
+		aria-label="Page navigation example">
+		<ul class="pagination justify-content-right">
+			<li th:if="${pagination.isFirst}==1" class="page-item disabled">
+				<a class="page-link" href="#" tabindex="-1">Previous</a>
+			</li>
+			<li th:if="${pagination.pageNumber>1}" class="page-item">
+				<a class="page-link" th:href="@{'/revervation/'+${pagination.pageNumber-1}}" tabindex="-1">Previous</a>
+			</li>
+			<th:block th:each="i: ${#numbers.sequence(1, pagination.totalPage)}">
+				<li class="page-item"><a class="page-link" th:href="@{'/revervation/'+${i}}" th:text="${i}"></a></li>
+			</th:block>
+
+			<th:block th:if="${pagination.isLast}">
+				<li class="page-item disabled">
+					<a class="page-link" href="#">Next</a>
+				</li>
+			</th:block>
+			<th:block th:if="${pagination.isLast}==0">
+				<li class="page-item">
+					<a class="page-link" th:href="@{'/revervation/'+${pagination.pageNumber+1}}">Next</a>
+				</li>
+			</th:block>
+		</ul>
+	</nav>
+	<!-- Pagination end -->
+
+
+
+			<!-- Footer Start -->
+			<div style="position: absolute;bottom: 0;" class="container-fluid pt-2 px-2">
+				<div class="bg-light rounded-top p-2">
+					<div class="row">
+						<div class="col-12 col-sm-6 text-center text-sm-start">
+							&copy; <a href="#">Your Site Name</a>, All Right Reserved.
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<!-- Footer End -->
+		</div>
+		<!-- Content End -->
+
+
+
+
+		<!-- Back to Top -->
+		<a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+	</div>
+
+	<!-- JavaScript Libraries -->
+	<script th:src="@{https://code.jquery.com/jquery-3.4.1.min.js}"></script>
+	<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/admin/lib/chart/chart.min.js}"></script>
+	<script th:src="@{/admin/lib/easing/easing.min.js}"></script>
+	<script th:src="@{/admin/lib/waypoints/waypoints.min.js}"></script>
+	<script th:src="@{/admin/lib/owlcarousel/owl.carousel.min.js}"></script>
+	<script th:src="@{/admin/lib/tempusdominus/js/moment.min.js}"></script>
+	<script th:src="@{/admin/lib/tempusdominus/js/moment-timezone.min.js}"></script>
+	<script th:src="@{/admin/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js}"></script>
+
+	<!-- Template Javascript -->
+	<script th:src="@{/admin/js/main.js}"></script>
+
+	<script>
+		
+
+
+		function validateQuantity() {
+			var price = document.getElementById("price")
+				, quantity = document.getElementById("quantity");
+			var priceInt = parseInt(price.value);
+			var quantityInt = parseInt(quantity.value);
+			if (priceInt <= 0) {
+				price.setCustomValidity("Nhập số lớn hơn 0!");
+				return false;
+			} else if (quantityInt <= 0) {
+				price.setCustomValidity('');
+				quantity.setCustomValidity("Nhập số lớn hơn 0!");
+				return false;
+			} else {
+				price.setCustomValidity('');
+				quantity.setCustomValidity('');
+				return true;
+			}
+			
+
+		}
+		function showModalConfirm() {
+			$('#confirm').modal('show');
+		}
+	</script>
+</body>
+
+</html>

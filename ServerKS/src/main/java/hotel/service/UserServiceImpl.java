@@ -5,10 +5,16 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import hotel.common.PaginationMeta;
+import hotel.common.UserData;
 import hotel.model.User;
+import hotel.model.dto.PaginationMetaDto;
 import hotel.model.dto.UserDto;
+import hotel.model.mapper.PaginationMetaMapper;
 import hotel.model.mapper.UserMapper;
 import hotel.repository.UserRepository;
 
@@ -38,6 +44,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public User findUserById(Long id) {
+		return userRepository.getById(id);
+	}
+
+	@Override
 	public List<UserDto> searchUser(String keyword) {
 		List<User> users = userRepository.findUsersWithPartOfName(keyword);
 		List<UserDto> rs = new ArrayList<>();
@@ -63,6 +74,21 @@ public class UserServiceImpl implements UserService {
 		if (user.isPresent())
 			return user.get();
 		return null;
+	}
+
+	@Override
+	public UserData getPageUser(Pageable pageable) {
+		Page<User> page = userRepository.findAll(pageable);
+		List<User> users = page.getContent();
+		List<UserDto> userDto = new ArrayList<>();
+		for (User user : users) {
+			userDto.add(UserMapper.toUserDto(user));
+		}
+
+		PaginationMeta userPagination = PaginationMeta.createPagination(page);
+		PaginationMetaDto dto = PaginationMetaMapper.toPaginationDto(userPagination);
+		UserData userData = new UserData(userDto, dto);
+		return userData;
 	}
 
 }

@@ -28,10 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 public class LoginAdminController {
 
 	private RestTemplate rest = new RestTemplate();
+	LinkedHashMap<String, String> curUser = haveCurrentUser();
 
 	@GetMapping()
 	public String showLoginForm(Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+		curUser = haveCurrentUser();
 		if (curUser == null) {
 			model.addAttribute("loginRequest", new LoginRequestDto());
 			return "admin/login";
@@ -110,7 +111,9 @@ public class LoginAdminController {
 	public String updateCurUser(@RequestParam("username") String username, @RequestParam("email") String email,
 			@RequestParam("phone") String phone, @RequestParam("avatar") String avatar,
 			@RequestParam("name") String name, Model model) {
-		UpdateRequestDto updateRequestDto = new UpdateRequestDto(username, email, phone, avatar, name);
+		curUser = haveCurrentUser();
+		UpdateRequestDto updateRequestDto = new UpdateRequestDto(username, email, phone, avatar, name,
+				curUser.get("role"));
 		String url = "http://localhost:8081/users";
 		Map<String, String> param = new HashMap<>();
 		param.put("username", username);

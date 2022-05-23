@@ -46,7 +46,7 @@
 
 
 		<!-- Sidebar Start -->
-		<div class="sidebar pe-6 pb-3">
+		<div class="sidebar pe-12 pb-2">
 			<nav class="navbar bg-light navbar-light">
 				<a href="/admin/login/account" id="reload" class="navbar-brand mx-4 mb-3">
 					<h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>Tài khoản</h3>
@@ -66,10 +66,15 @@
 				<div class="navbar-nav w-100">
 
 					<a href="/admin/room-manage" class="nav-item nav-link active"><i
-							class="fa-solid fa-door-open"></i>Quản lí phòng</a>
-					<a href="/admin/room-manage/room-category" class="nav-item nav-link"><i class="fa-solid fa-door-open"></i>Loại phòng</a>
-					<a href="#" class="nav-item nav-link"><i class="fa-solid fa-people-roof"></i>Quản lí khách hàng</a>
-					<a href="#" class="nav-item nav-link"><i class="fa-solid fa-suitcase"></i>Quản lí đặt phòng</a>
+							class="fa-solid fa-door-open"></i>Quản lí
+						phòng</a>
+					<a href="/admin/room-manage/room-category" class="nav-item nav-link"><i
+							class="fa-solid fa-door-open"></i>Loại phòng</a>
+					<a href="/admin/account-manage" class="nav-item nav-link"><i
+							class="fa-solid fa-people-roof"></i>Quản lí khách hàng</a>
+					<a href="/admin/revervation" class="nav-item nav-link "><i class="fa-solid fa-suitcase"></i>Quản lí
+						đặt phòng</a>
+					<hr>
 					<a th:href="@{/}" class="nav-item nav-link"><i class="fa-solid fa-house"></i>Trang chủ</a>
 					<a href="/admin/login/account" class="nav-item nav-link "><i class="fa-solid fa-user"></i>Cá
 						nhân</a>
@@ -86,7 +91,7 @@
 
 
 		<!-- Content Start -->
-		<div class="content" style="position: relative;" >
+		<div class="content" style="position: relative;">
 			<!-- Navbar Start -->
 			<nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
 				<a href="index.html" class="navbar-brand d-flex d-lg-none me-4">
@@ -116,8 +121,8 @@
 
 
 			<!-- room table start -->
-			<div  class="col-sm-12 col-xl-11" id="room-table">
-				<div  style="margin: 20pt;position: relative;" class="bg-light rounded h-100 p-4">
+			<div class="col-sm-12 col-xl-11" id="room-table">
+				<div style="margin: 6pt;position: relative;" class="bg-light rounded h-100 p-4">
 					<h5 style="display: inline-block;" class="mb-4">Danh sách phòng</h5>
 					<a><button style="float: right;margin: 5pt;" id="bt-add" type="button" class="btn btn-success">Thêm
 							mới
@@ -167,22 +172,23 @@
 							</tr>
 						</tbody>
 					</table>
-				</div >
+				</div>
 				<!-- Pagination start -->
-						<nav style="position: absolute;bottom: 0;margin-bottom: 30pt;right: 0;margin-right: 84pt;" aria-label="Page navigation example">
-							<ul class="pagination justify-content-right">
-								<li class="page-item disabled">
-									<a class="page-link" href="#" tabindex="-1">Previous</a>
-								</li>
-								<li class="page-item"><a class="page-link" href="#">1</a></li>
-								<li class="page-item"><a class="page-link" href="#">2</a></li>
-								<li class="page-item"><a class="page-link" href="#">3</a></li>
-								<li class="page-item">
-									<a class="page-link" href="#">Next</a>
-								</li>
-							</ul>
-						</nav>
-						<!-- Pagination end -->
+				<nav style="position: absolute;bottom: 0;margin-bottom: 30pt;right: 0;margin-right: 84pt;"
+					aria-label="Page navigation example">
+					<ul class="pagination justify-content-right">
+						<li class="page-item disabled">
+							<a class="page-link" href="#" tabindex="-1">Previous</a>
+						</li>
+						<li class="page-item"><a class="page-link" href="#">1</a></li>
+						<li class="page-item"><a class="page-link" href="#">2</a></li>
+						<li class="page-item"><a class="page-link" href="#">3</a></li>
+						<li class="page-item">
+							<a class="page-link" href="#">Next</a>
+						</li>
+					</ul>
+				</nav>
+				<!-- Pagination end -->
 			</div>
 
 			<!-- room table  end -->
@@ -196,7 +202,7 @@
 								<div class="row m-l-0 m-r-0">
 									<div class="col-sm-4 bg-c-lite-green user-profile">
 										<div class="card-block text-center text-white">
-											
+
 											<h3 class="f-w-600 " style="color: white;">Thêm phòng</h3>
 											<i class=" mdi mdi-square-edit-outline feather icon-edit m-t-10 f-16"></i>
 										</div>
@@ -214,8 +220,8 @@
 													</div>
 													<div class="col-sm-6">
 														<p class="m-b-10 f-w-600">Hình ảnh</p>
-														<input name="image" th:field="*{image}" id="image" type="text" size="50"
-															class="text f-w-400" required></input>
+														<input name="image" th:field="*{image}" id="image" type="text"
+															size="50" class="text f-w-400" required></input>
 													</div>
 													<div class="col-sm-6">
 														<p class="m-b-10 f-w-600">Giá</p>
@@ -224,26 +230,27 @@
 													</div>
 													<div class="col-sm-6">
 														<p class="m-b-10 f-w-600">Số lượng</p>
-														<input name="quantity" th:field="*{quantity}" id="quantity" type="number"
-															class="text f-w-400"></input>
+														<input name="quantity" th:field="*{quantity}" id="quantity"
+															type="number" class="text f-w-400"></input>
 													</div>
 
 													<div class="col-sm-6">
 														<p class="m-b-10 f-w-600">Loại phòng</p>
-														
-														<select th:field="*{categoryId}" class="form-select form-select-sm"
+
+														<select th:field="*{categoryId}"
+															class="form-select form-select-sm"
 															aria-label=".form-select-sm example">
-															
-															<option  th:each="category : ${categories}" 
+
+															<option th:each="category : ${categories}"
 																th:value="${category.idCate}"
-																th:utext="${category.nameCate}"
-															></option>
+																th:utext="${category.nameCate}"></option>
 														</select>
 													</div>
 													<div class="col-sm-6">
 														<p class="m-b-10 f-w-600">Mô tả</p>
-														<textarea name="description" th:field="*{description}" id="description"  rows="5" cols="51"
-															class="text f-w-400" required></textarea>
+														<textarea name="description" th:field="*{description}"
+															id="description" rows="5" cols="51" class="text f-w-400"
+															required></textarea>
 													</div>
 													<button type="submit" onclick="validateQuantity()"
 														style="margin-top: 8pt;"

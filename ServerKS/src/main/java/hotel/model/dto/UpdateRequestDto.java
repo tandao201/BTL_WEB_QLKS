@@ -17,4 +17,5 @@ public class UpdateRequestDto {
 	private String phone;
 	private String avatar;
 	private String name;
+	private String role;
 }

@@ -3,6 +3,8 @@ package hotel.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,4 +27,11 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
 	@Query(value = "UPDATE room a " + "SET a.locked = :#{#room.locked} WHERE a.id = :#{#room.id}", nativeQuery = true)
 	int updateLockedById(@Param("room") Room room);
+
+	@Query(value = "select * from room order by rand() limit 3", nativeQuery = true)
+	List<Room> findRoomSuggest();
+
+	@Query(value = "select * from room where quantity > 1", nativeQuery = true)
+	Page<Room> findAllRoomRemain(Pageable pageable);
+
 }

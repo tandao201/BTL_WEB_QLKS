@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import hotel.common.APIResponse;
 import hotel.model.User;
+import hotel.model.dto.LockedUserRequest;
 import hotel.model.dto.PasswordChangeDto;
 import hotel.model.dto.UpdateRequestDto;
 import hotel.model.dto.UserDto;
@@ -84,6 +86,43 @@ public class UserController {
 		return ResponseEntity.ok(apiResponse);
 	}
 
+	@PutMapping("/admin")
+	public ResponseEntity<?> updateUserByAdmin(@RequestBody UpdateRequestDto updateRequestDto) {
+		APIResponse apiResponse = new APIResponse();
+		User user = userService.getUserByUsername(updateRequestDto.getUsername());
+
+		if (user != null) {
+			user.setEmail(updateRequestDto.getEmail());
+			user.setPhone(updateRequestDto.getPhone());
+			user.setRole(updateRequestDto.getRole());
+			user.setName(updateRequestDto.getName());
+			User userUpdate = userService.updateUser(user);
+			UserDto userDto = UserMapper.toUserDto(userUpdate);
+			apiResponse.setData(userDto);
+		} else {
+			apiResponse.setStatus(404);
+		}
+
+		return ResponseEntity.ok(apiResponse);
+	}
+
+	@PutMapping("/admin/locked")
+	public ResponseEntity<?> lockedUserByAdmin(@RequestBody LockedUserRequest request) {
+		APIResponse apiResponse = new APIResponse();
+		User user = userService.findUserById(Long.parseLong(request.getId()));
+
+		if (user != null) {
+			user.setLocked(request.isLocked());
+			User userUpdate = userService.updateUser(user);
+			UserDto userDto = UserMapper.toUserDto(userUpdate);
+			apiResponse.setData(userDto);
+		} else {
+			apiResponse.setStatus(404);
+		}
+
+		return ResponseEntity.ok(apiResponse);
+	}
+
 	@DeleteMapping("/{id}")
 	public void deleteUser(@PathVariable("id") String id) {
 		Long idDelete = Long.valueOf(id);
@@ -120,6 +159,12 @@ public class UserController {
 		}
 
 		return ResponseEntity.ok(apiResponse);
+	}
+
+	@GetMapping("/userPage")
+	public ResponseEntity<?> getPageRoom(Pageable pageable) {
+
+		return ResponseEntity.ok(userService.getPageUser(pageable));
 	}
 
 }

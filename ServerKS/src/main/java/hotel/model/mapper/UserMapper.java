@@ -13,7 +13,11 @@ public class UserMapper {
 		dto.setAvatar(user.getAvatar());
 		dto.setRole(user.getRole());
 		dto.setActived(user.getActived());
-		dto.setLocked(false);
+		boolean checkLock = false;
+		if (user.getEnabled() != null) {
+			checkLock = user.getLocked();
+		}
+		dto.setLocked(checkLock);
 		boolean check = false;
 		if (user.getEnabled() != null) {
 			check = user.getEnabled();

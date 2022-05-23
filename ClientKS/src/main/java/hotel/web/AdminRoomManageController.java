@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
 @RequestMapping("/admin/room-manage")
-public class RoomManageController {
+public class AdminRoomManageController {
 
 	private RestTemplate rest = new RestTemplate();
 	LinkedHashMap<String, String> curUser = haveCurrentUser();
@@ -54,15 +54,18 @@ public class RoomManageController {
 		Map<Long, String> mapCate = new HashMap<>();
 		for (RoomCategories cate : categories) {
 			mapCate.put(cate.getIdCate(), cate.getNameCate());
+
 		}
 		UserDto user = setCurUser(curUser);
 		model.addAttribute("user", user);
 		room.setEnabled(true);
 		room.setLocked(false);
-		room.setName(mapCate.get(room.getCategoryId()));
+		room.setCategory(mapCate.get(room.getCategoryId()));
+
 		String url = "http://localhost:8081/api/room";
 		LinkedHashMap<String, String> data = rest.postForObject(url, room, LinkedHashMap.class);
 		log.info(data.get("name"));
+		model.addAttribute("categories", categories);
 		return "admin/room-manage";
 	}
 
@@ -80,6 +83,7 @@ public class RoomManageController {
 		String url = "http://localhost:8081/api/categories/" + id;
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("id", id);
+		log.info("Id: " + id);
 		rest.delete(url, params);
 		UserDto user = setCurUser(curUser);
 		model.addAttribute("user", user);
@@ -123,4 +127,5 @@ public class RoomManageController {
 		List<RoomCategories> categories = Arrays.asList(rest.getForObject(url, RoomCategories[].class));
 		return categories;
 	}
+
 }

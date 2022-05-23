@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+	<title>Booking</title>
+
+	<!-- Google Web Fonts -->
+	<link rel="preconnect" th:href="@{https://fonts.googleapis.com}">
+	<link rel="preconnect" th:href="@{https://fonts.gstatic.com}" crossorigin>
+	<link th:href="@{https://fonts.googleapis.com/css2?family=Montserrat:ital@1&display=swap}" rel="stylesheet">
+
+	<!-- Icon Font Stylesheet -->
+	<link th:href="@{https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css}" rel="stylesheet">
+	<link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css}" rel="stylesheet">
+
+	<!-- Libraries Stylesheet -->
+	<link th:href="@{/admin/lib/owlcarousel/assets/owl.carousel.min.css}" rel="stylesheet}">
+	<link th:href="@{/admin/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css}" rel="stylesheet" />
+
+	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}">
+	<link rel="stylesheet" th:href="@{/css/magnific-popup.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link rel="stylesheet" th:href="@{/css/themify-icons.css}">
+	<link rel="stylesheet" th:href="@{/css/nice-select.css}">
+	<link rel="stylesheet" th:href="@{/css/flaticon.css}">
+	<link rel="stylesheet" th:href="@{/css/gijgo.css}">
+	<link rel="stylesheet" th:href="@{/css/animate.css}">
+	<link rel="stylesheet" th:href="@{/css/slicknav.css}">
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+	<link rel="stylesheet" th:href="@{/css/customStyle.css}">
+
+	<!-- Custom stlylesheet -->
+	<link type="text/css" rel="stylesheet" th:href="@{/book-css/style.css}" />
+
+	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+		  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+		  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+</head>
+
+<body>
+	<!-- header-start -->
+	<header>
+		<div class="header-area ">
+			<div id="sticky-header" class="main-header-area">
+				<div class="container-fluid p-0">
+					<div class="row align-items-center no-gutters">
+						<div class="col-xl-5 col-lg-6">
+							<div class="main-menu  d-none d-lg-block">
+								<nav>
+									<ul id="navigation">
+										<li><a th:href="@{/}">Trang chủ</a></li>
+										<li><a  href="/rooms">Phòng</a></li>
+										<li><a href="about.html">Về chúng tôi</a></li>
+
+										<li><a href="contact.html">Liên hệ</a></li>
+									</ul>
+								</nav>
+							</div>
+						</div>
+						<div class="col-xl-2 col-lg-2">
+							<div class="logo-img">
+
+							</div>
+						</div>
+						<div class="col-xl-5 col-lg-4 d-none d-lg-block">
+							<div class="book_room">
+								<div class="socail_links">
+									<a href="#">
+										<!-- IF CUSTOMER IS ANONYMOUS -->
+										<div th:if="${user==null}">
+											<a href="/login"><button type="button" class="btn btn-success">Đăng
+													nhập</button></a>
+										</div>
+										<!-- ELSE -->
+										<div th:if="${user!=null}">
+											<div class="nav-item dropdown">
+												<a style="color: white;" href="/login/account"
+													class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+													<img class="rounded-circle me-lg-2" th:src="${user.avatar}" alt=""
+														style="width: 40px; height: 40px;margin-right: 10pt">
+													<span class="d-none d-lg-inline-flex" th:text="${user.name}"></span>
+												</a>
+												<div
+													class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+													<a href="/login/account" class="dropdown-item">My Profile</a>
+													<form id="myform2" method="post" action="/login/logout"></form>
+													<a onclick="document.getElementById('myform2').submit();"
+														class="dropdown-item">Log Out</a>
+												</div>
+											</div>
+										</div>
+									</a>
+								</div>
+								<div class="book_btn d-none d-lg-block">
+									<a class="popup-with-form" href="#test-form">Đặt phòng</a>
+								</div>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="mobile_menu d-block d-lg-none"></div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+
+	</header>
+	<!-- header-end -->
+	
+	<div id="booking" class="section">
+		<div class="section-center">
+			<div class="container">
+				<div class="row">
+					<div class="booking-form">
+						<div class="form-header">
+							<h1>Đặt phòng nào</h1>
+						</div>
+						<form method="post" action="/booking/bookRoom"  >
+							<div class="row">
+							
+								<div class="col-md-6">
+									<div class="form-group">
+										<span class="form-label">Check In</span>
+										<input class="form-control" id="checkIn" type="date" name="checkIn" required>
+									</div>
+									<span class="in-out hidden-xs hidden-sm">&#8652;</span>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<span class="form-label">Check out</span>
+										<input class="form-control" id="checkOut" name="checkOut" type="date"  required>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<span class="form-label">Tên phòng</span>
+										<input class="form-control" th:value="${room.name}" name="roomname" type="text"  readonly>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<span class="form-label">Loại phòng</span>
+										<input class="form-control" th:value="${room.category}" name="roomCategory" type="text" readonly>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<span class="form-label">Giá($)</span>
+										<input class="form-control" id="price" type="text" th:value="${room.price}" readonly>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<span class="form-label">Số lượng</span>
+										<input class="form-control" id="quantityX" type="text"   value="1" readonly>
+									</div>
+								</div>
+							</div>
+							<hr>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<span class="form-label " style="font-size: 20px;" id="tongTien" >Tiền phòng: $ 0</span><br>
+										<span class="form-label " style="font-size: 20px;" id="vat" >Phí VAT(5%): $ 0</span><br>
+										<span class="form-label " style="font-size: 20px;" id="totalPrice"  >Tổng thanh toán: $ 0</span>
+										<input  id="roomId" type="hidden" th:value="${room.id}" name="roomId" >
+										<input  id="totalMoney" name="totalMoney" type="hidden" value="0"  >
+									</div>
+								</div>
+							</div>
+							<div class="col-md-5" style="margin-left: 160pt;" >
+									<div class="form-btn">
+										<button class="submit-btn" id="bt-book" >Thuê phòng</button>
+									</div>
+								</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- footer start -->
+	<footer class="footer">
+		<div class="footer_top">
+			<div class="container">
+				<div class="row">
+					<div class="col-xl-3 col-md-6 col-lg-3">
+						<div class="footer_widget">
+							<h3 class="footer_title">
+								Địa chỉ
+							</h3>
+							<p class="footer_text"> Mỗ Lao, Hà Đông <br>
+								Hà nội, Việt Nam</p>
+							<a href="#" class="line-button">Chỉ đường</a>
+						</div>
+					</div>
+					<div class="col-xl-3 col-md-6 col-lg-3">
+						<div class="footer_widget">
+							<h3 class="footer_title">
+								Liên hệ:
+							</h3>
+							<p class="footer_text">1900561252 <br>
+								thongocne@gmail.com</p>
+						</div>
+					</div>
+					<div class="col-xl-2 col-md-6 col-lg-2">
+						<div class="footer_widget">
+							<h3 class="footer_title">
+								Chuyển hướng
+							</h3>
+							<ul>
+								<li><a href="#">Home</a></li>
+								<li><a href="#">Rooms</a></li>
+								<li><a href="#">About</a></li>
+								<li><a href="#">News</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-xl-4 col-md-6 col-lg-4">
+						<div class="footer_widget">
+							<h3 class="footer_title">
+								Newsletter
+							</h3>
+							<form action="#" class="newsletter_form">
+								<input type="text" placeholder="Enter your mail">
+								<button type="submit">Sign Up</button>
+							</form>
+							<p class="newsletter_text">Subscribe newsletter to get updates</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="copy-right_text">
+			<div class="container">
+				<div class="footer_border"></div>
+				<div class="row">
+					<div class="col-xl-8 col-md-7 col-lg-9">
+						<p class="copy_right">
+							<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. 
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+ Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+					</div>
+					<div class="col-xl-4 col-md-5 col-lg-3">
+						<div class="socail_links">
+							<ul>
+								<li>
+									<a href="#">
+										<i class="fa fa-facebook-square"></i>
+									</a>
+								</li>
+								<li>
+									<a href="#">
+										<i class="fa fa-twitter"></i>
+									</a>
+								</li>
+								<li>
+									<a href="#">
+										<i class="fa fa-instagram"></i>
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+	<!-- footer end -->
+	
+	<!-- JS here -->
+	<script th:src="@{/js/vendor/modernizr-3.5.0.min.js}"></script>
+	<script th:src="@{/js/vendor/jquery-1.12.4.min.js}"></script>
+	<script th:src="@{/js/popper.min.js}"></script>
+	<script th:src="@{/js/bootstrap.min.js}"></script>
+	<script th:src="@{/js/owl.carousel.min.js}"></script>
+	<script th:src="@{/js/isotope.pkgd.min.js}"></script>
+	<script th:src="@{/js/ajax-form.js}"></script>
+	<script th:src="@{/js/waypoints.min.js}"></script>
+	<script th:src="@{/js/jquery.counterup.min.js}"></script>
+	<script th:src="@{/js/imagesloaded.pkgd.min.js}"></script>
+	<script th:src="@{/js/scrollIt.js}"></script>
+	<script th:src="@{/js/jquery.scrollUp.min.js}"></script>
+	<script th:src="@{/js/wow.min.js}"></script>
+	<script th:src="@{/js/nice-select.min.js}"></script>
+	<script th:src="@{/js/jquery.slicknav.min.js}"></script>
+	<script th:src="@{/js/jquery.magnific-popup.min.js}"></script>
+	<script th:src="@{/js/plugins.js}"></script>
+	<script th:src="@{/js/gijgo.min.js}"></script>
+
+	<!--contact js-->
+	<script th:src="@{/js/contact.js}"></script>
+	<script th:src="@{/js/jquery.ajaxchimp.min.js}"></script>
+	<script th:src="@{/js/jquery.form.js}"></script>
+	<script th:src="@{/js/jquery.validate.min.js}"></script>
+	<script th:src="@{/js/mail-script.js}"></script>
+
+	<script th:src="@{/js/main.js}"></script>
+	<script th:inline="javascript">
+		var checkIn = document.getElementById("checkIn");
+		var checkOut = document.getElementById("checkOut");
+		var total = document.getElementById("tongTien");
+		checkOut.addEventListener("change", function() {
+			var checkInDate = new Date(checkIn.value);
+			var checkOutDate = new Date(checkOut.value);
+			var time = checkOutDate-checkInDate;
+			var days = time/ (1000*3600*24);
+			var roomQuantity = /*[[${room.quantity}]]*/ 0;
+			if (time < 0){
+				checkOut.setCustomValidity("Ngày check out sớm hơn ngày check in!");
+			} else {
+				checkOut.setCustomValidity("");
+				var price = /*[[${room.price}]]*/ 0;
+				//console.log(price);
+				var subTotal = price * days;
+				var vat = Math.round(subTotal*0.05);
+				var total = subTotal+vat;
+				$("#tongTien").html("Tiền phòng: $ "+subTotal);
+				$("#vat").html("Phí VAT(5%): $ "+vat);
+				$("#totalPrice").html("Tổng thanh toán: $ "+total);
+				$("#totalMoney").val(total);
+			}
+			
+			
+		})
+	  
+	  	$("#totalTien").click(function (e) {
+			e.preventDefault();
+		});
+	</script>
+</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+
+
+</html>
