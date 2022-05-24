@@ -42,10 +42,16 @@ public class UserController {
 
 	@PostMapping(consumes = "application/json")
 	@ResponseStatus(HttpStatus.CREATED)
-	public User createUser(@RequestBody User user) {
+	public ResponseEntity<?> createUser(@RequestBody User user) {
+		User userDb = userService.getUserByUsername(user.getUsername());
+		if (userDb != null) {
+			Map<String, String> error = new HashMap<>();
+			error.put("error", "Username đã được dùng!");
+			return ResponseEntity.ok(error);
+		}
 		String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
 		user.setPassword(encodedPassword);
-		return userService.save(user);
+		return ResponseEntity.ok(userService.save(user));
 	}
 
 	@GetMapping("/search")

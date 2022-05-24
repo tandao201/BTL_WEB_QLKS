@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
+import hotel.model.LoginRequestDto;
 import hotel.model.Room;
 import hotel.model.RoomDto;
+import hotel.model.SignUpRequestDto;
 import hotel.model.UserDto;
 
 @Controller
@@ -29,7 +31,9 @@ public class homeCTL {
 		}
 		model.addAttribute("rooms", dtoSugs);
 		if (curUser == null) {
-			model.addAttribute("user", null);
+			model.addAttribute("signupDto", new SignUpRequestDto());
+			model.addAttribute("loginRequest", new LoginRequestDto());
+			return "customer/login";
 
 		} else {
 			UserDto user = new UserDto();
@@ -52,7 +56,9 @@ public class homeCTL {
 		}
 		model.addAttribute("rooms", dtoSugs);
 		if (curUser == null) {
-			model.addAttribute("user", null);
+			model.addAttribute("signupDto", new SignUpRequestDto());
+			model.addAttribute("loginRequest", new LoginRequestDto());
+			return "customer/login";
 
 		} else {
 			UserDto user = new UserDto();
@@ -75,7 +81,9 @@ public class homeCTL {
 		}
 		model.addAttribute("rooms", dtoSugs);
 		if (curUser == null) {
-			model.addAttribute("user", null);
+			model.addAttribute("signupDto", new SignUpRequestDto());
+			model.addAttribute("loginRequest", new LoginRequestDto());
+			return "customer/login";
 
 		} else {
 			UserDto user = new UserDto();

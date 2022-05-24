@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
+import hotel.model.LoginRequestDto;
 import hotel.model.Room;
 import hotel.model.RoomBooking;
 import hotel.model.RoomBookingRequestDto;
+import hotel.model.SignUpRequestDto;
 import hotel.model.UserDto;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +37,9 @@ public class BookingController {
 		LinkedHashMap<String, String> curUser = haveCurrentUser();
 		model.addAttribute("booking", new RoomBookingRequestDto());
 		if (curUser == null) {
-			model.addAttribute("user", null);
+			model.addAttribute("signupDto", new SignUpRequestDto());
+			model.addAttribute("loginRequest", new LoginRequestDto());
+			return "customer/login";
 
 		} else {
 			UserDto user = new UserDto();

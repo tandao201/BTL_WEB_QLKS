@@ -33,6 +33,7 @@ public class AdminAccountManageController {
 	Map<String, Integer> paginationMeta;
 	LinkedHashMap<String, String> curUser = haveCurrentUser();
 	String success = "";
+	String error = "";
 
 	@GetMapping
 	public String showForm(Model model) {
@@ -44,21 +45,22 @@ public class AdminAccountManageController {
 			model.addAttribute("loginRequest", new LoginRequestDto());
 			return "admin/login";
 		} else {
-			UserDto user = new UserDto();
-			user.setEmail(curUser.get("email"));
-			user.setName(curUser.get("name"));
-			user.setAvatar(curUser.get("avatar"));
-			user.setPhone(curUser.get("phone"));
+			UserDto user = setCurUser(curUser);
 			model.addAttribute("user", user);
 		}
-		PaginationMeta page = setPage();
-		model.addAttribute("pagination", page);
-		model.addAttribute("users", users);
+		PaginationMeta pagination = setPage();
+
 		if (!success.isEmpty()) {
 			model.addAttribute("success", success);
 		}
+		if (!error.isEmpty()) {
+			model.addAttribute("error", error);
+		}
 		success = "";
+		error = "";
 		model.addAttribute("account", new AdminSignUpRequest());
+		model.addAttribute("pagination", pagination);
+		model.addAttribute("users", users);
 		return "admin/account-manage";
 	}
 
@@ -70,11 +72,7 @@ public class AdminAccountManageController {
 			return "admin/login";
 
 		} else {
-			UserDto user = new UserDto();
-			user.setEmail(curUser.get("email"));
-			user.setName(curUser.get("name"));
-			user.setAvatar(curUser.get("avatar"));
-			user.setPhone(curUser.get("phone"));
+			UserDto user = setCurUser(curUser);
 			model.addAttribute("user", user);
 		}
 		String url = "http://localhost:8081/users/userPage?page-number=" + page + "&page-size=5";
@@ -96,8 +94,8 @@ public class AdminAccountManageController {
 		params.put("id", id);
 		rest.delete(url, params);
 		UserDto user = setCurUser(curUser);
-		model.addAttribute("user", user);
 		success = "Xóa thành công!";
+		model.addAttribute("user", user);
 		model.addAttribute("account", new AdminSignUpRequest());
 		return "redirect:/admin/account-manage";
 	}
@@ -170,8 +168,12 @@ public class AdminAccountManageController {
 		request.setActived(false);
 		String url = "http://localhost:8081/users";
 		LinkedHashMap<String, String> data = rest.postForObject(url, request, LinkedHashMap.class);
-		log.info(data.get("name"));
-		return "admin/account-manage";
+		if (data.get("error") != null) {
+			error = data.get("error");
+		} else {
+			success = "Thêm mới thành công!";
+		}
+		return "redirect:/admin/account-manage";
 	}
 
 	@SuppressWarnings("unchecked")
