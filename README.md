@@ -1,8 +1,9 @@
 # BTL_WEB_QLKS
-Thành viên: Đào Công Tân  (B19DCCN570)
+# Thành viên: 
+            Đào Công Tân  (B19DCCN570)
             Đỗ Quốc Khánh (B19DCCN354)
             Hán Ngọc Duy  (B19DCCN137)
-Mô tả dự án và đóng góp từng thành viên
+# Mô tả dự án và đóng góp từng thành viên
   Web quản lí 1 khách sạn:
   1. Về phía khách hàng:
     + Cho phép đăng kí (kích hoạt tài khoản bằng email), đăng nhập, đăng xuất.
