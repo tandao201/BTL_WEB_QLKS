@@ -18,12 +18,12 @@ import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
 import hotel.common.PaginationMeta;
-import hotel.model.AdminSignUpRequest;
-import hotel.model.GetCurrentUserRequest;
-import hotel.model.LockedUserRequest;
-import hotel.model.LoginRequestDto;
-import hotel.model.UpdateRequestDto;
 import hotel.model.UserDto;
+import hotel.request.AdminSignUpRequest;
+import hotel.request.GetCurrentUserRequest;
+import hotel.request.LockedUserRequest;
+import hotel.request.LoginRequestDto;
+import hotel.request.UpdateRequestDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

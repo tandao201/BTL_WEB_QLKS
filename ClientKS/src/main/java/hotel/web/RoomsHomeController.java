@@ -15,10 +15,10 @@ import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
 import hotel.common.PaginationMeta;
-import hotel.model.GetCurrentUserRequest;
-import hotel.model.RoomBookingRequestDto;
 import hotel.model.RoomDto;
 import hotel.model.UserDto;
+import hotel.request.GetCurrentUserRequest;
+import hotel.request.RoomBookingRequestDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

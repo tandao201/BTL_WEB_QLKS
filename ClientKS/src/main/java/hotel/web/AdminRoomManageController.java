@@ -19,13 +19,13 @@ import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
 import hotel.common.PaginationMeta;
-import hotel.model.GetCurrentUserRequest;
-import hotel.model.LockedRoomRequest;
-import hotel.model.LoginRequestDto;
 import hotel.model.Room;
 import hotel.model.RoomCategories;
-import hotel.model.UpdateRoomDto;
 import hotel.model.UserDto;
+import hotel.request.GetCurrentUserRequest;
+import hotel.request.LockedRoomRequest;
+import hotel.request.LoginRequestDto;
+import hotel.request.UpdateRoomDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -3,6 +3,7 @@ package hotel.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import hotel.request.RoomBookingRequestDto;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

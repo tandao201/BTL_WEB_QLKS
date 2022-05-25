@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
-import hotel.model.GetCurrentUserRequest;
-import hotel.model.LoginRequestDto;
-import hotel.model.PasswordChangeDto;
 import hotel.model.UserDto;
+import hotel.request.GetCurrentUserRequest;
+import hotel.request.LoginRequestDto;
+import hotel.request.PasswordChangeDto;
 
 @Controller
 @RequestMapping("/admin/password")

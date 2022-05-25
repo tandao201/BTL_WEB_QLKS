@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
-import hotel.model.GetCurrentUserRequest;
-import hotel.model.LoginRequestDto;
 import hotel.model.RoomBooked;
 import hotel.model.Statistic;
 import hotel.model.UserDto;
+import hotel.request.GetCurrentUserRequest;
+import hotel.request.LoginRequestDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

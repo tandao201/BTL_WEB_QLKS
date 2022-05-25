@@ -20,11 +20,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import hotel.common.APIResponse;
-import hotel.model.GetCurrentUserRequest;
-import hotel.model.LoginRequestDto;
-import hotel.model.LogoutRequestDto;
-import hotel.model.UpdateRequestDto;
 import hotel.model.UserDto;
+import hotel.request.GetCurrentUserRequest;
+import hotel.request.LoginRequestDto;
+import hotel.request.LogoutRequestDto;
+import hotel.request.UpdateRequestDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
