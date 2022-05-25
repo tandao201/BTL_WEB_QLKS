@@ -33,7 +33,7 @@
 	<link rel="stylesheet" th:href="@{/css/account.css}">
 </head>
 
-<body onload="formatDate()">
+<body onload="formatDate();hideAdd();">
 	<div class="container-xxl position-relative bg-white d-flex p-0">
 		<!-- Spinner Start -->
 		<div id="spinner"
@@ -73,6 +73,8 @@
 							class="fa-solid fa-people-roof"></i>Quản lí khách hàng</a>
 					<a href="/admin/revervation" class="nav-item nav-link active"><i
 							class="fa-solid fa-suitcase"></i>Quản lí đặt phòng</a>
+					<a href="/admin/statistic" class="nav-item nav-link "><i class="fa-solid fa-chart-simple"></i>Thống
+						kê</a>
 					<hr>
 					<a th:href="@{/}" class="nav-item nav-link"><i class="fa-solid fa-house"></i>Trang chủ</a>
 					<a href="/admin/login/account" class="nav-item nav-link "><i class="fa-solid fa-user"></i>Cá
@@ -123,7 +125,8 @@
 			<div class="col-sm-12 col-xl-11" id="room-table">
 				<div style="margin: 6pt;position: relative;" class="bg-light rounded h-100 p-4">
 					<h5 style="display: inline-block;" class="mb-4">Danh sách đơn phòng</h5>
-
+					<a><button style="float: right;margin: 5pt;" id="bt-add" type="button" class="btn btn-success">Tạo
+							đơn phòng</button></a>
 					<table class="table table-hover">
 						<thead>
 							<tr>
@@ -164,7 +167,7 @@
 
 									<td>
 										<th:block th:if="${room.status==false}">
-											<a th:href="@{'/admin/revervation/update/'+${room.id}}"><button
+											<a th:href="@{'/admin/revervation/update/'+${room.id}+'/'+${room.name}}"><button
 													type="button" class="btn btn-outline-success">Thanh
 													toán</button></a>
 										</th:block>
@@ -248,7 +251,96 @@
 
 			<!-- room table  end -->
 
+			<!-- room add form start -->
+			<div id="add-form" class="section">
+				<div class="section-center">
+					<div class="container">
+						<div class="row">
+							<div class="booking-form">
+								<div class="form-header">
+									<h1>Đặt phòng</h1>
+								</div>
+								<form method="post" action="/admin/revervation/bookRoomAdmin">
+									<div class="row">
 
+										<div class="col-md-6">
+											<div class="form-group">
+												<span class="form-label">Check In</span>
+												<input class="form-control" id="checkIn" type="date" name="checkIn"
+													required>
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<span class="form-label">Check out</span>
+												<input class="form-control" id="checkOut" name="checkOut" type="date"
+													required>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-12">
+											<div class="form-group">
+												<span class="form-label">Tên phòng</span>
+												<select class="form-control" name="roomname" id="roomname" > 
+													<th:block th:each = "bookRoom : ${bookRooms}">
+														
+														<option th:text="${bookRoom.name}">1</option>
+													</th:block>
+													
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group">
+												<span class="form-label">Loại phòng</span>
+												<input class="form-control" name="roomCategory" id="roomCategory" type="text" readonly>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<span class="form-label">Giá($)</span>
+												<input class="form-control" id="price" name="price" type="text" readonly>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="form-group">
+												<span class="form-label">Số lượng</span>
+												<input class="form-control" id="quantityX" type="text" value="1"
+													readonly>
+											</div>
+										</div>
+									</div>
+									<hr>
+									<div class="row">
+										<div class="col-md-12">
+											<div class="form-group">
+												<span class="form-label " style="font-size: 20px;" id="tongTien">Tiền
+													phòng: $ 0</span><br>
+												<span class="form-label " style="font-size: 20px;" id="vat">Phí VAT(5%):
+													$ 0</span><br>
+												<span class="form-label " style="font-size: 20px;" id="totalPrice">Tổng
+													thanh toán: $ 0</span>
+												<input id="roomId" type="hidden" name="roomId">
+												<input id="totalMoney" name="totalMoney" type="hidden" value="0">
+											</div>
+										</div>
+									</div>
+									<div class="col-md-5">
+										<button type="submit" style="margin-top: 8pt;"
+											class="btn btn-outline-success">Thuê phòng</button>
+										<button type="button" id="bt-huy" style="margin-top: 8pt;"
+											class="btn btn-outline-danger">Hủy</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- room add form end -->
 
 
 
@@ -288,30 +380,70 @@
 	<!-- Template Javascript -->
 	<script th:src="@{/admin/js/main.js}"></script>
 
-	<script>
+	<script th:inline=javascript>
+		var checkIn = document.getElementById("checkIn");
+		var checkOut = document.getElementById("checkOut");
+		var total = document.getElementById("tongTien");
+		var roomName = document.getElementById('roomname')
+		var bookRooms = /*[[${bookRooms}]]*/ null;
+		var category = document.getElementById('roomCategory');
+		checkOut.addEventListener("change", function () {
+			var checkInDate = new Date(checkIn.value);
+			var checkOutDate = new Date(checkOut.value);
+			var time = checkOutDate - checkInDate;
+			var days = time / (1000 * 3600 * 24);
 
-
-
-		function validateQuantity() {
-			var price = document.getElementById("price")
-				, quantity = document.getElementById("quantity");
-			var priceInt = parseInt(price.value);
-			var quantityInt = parseInt(quantity.value);
-			if (priceInt <= 0) {
-				price.setCustomValidity("Nhập số lớn hơn 0!");
-				return false;
-			} else if (quantityInt <= 0) {
-				price.setCustomValidity('');
-				quantity.setCustomValidity("Nhập số lớn hơn 0!");
-				return false;
+			if (time < 0) {
+				checkOut.setCustomValidity("Ngày check out sớm hơn ngày check in!");
 			} else {
-				price.setCustomValidity('');
-				quantity.setCustomValidity('');
-				return true;
+				checkOut.setCustomValidity("");
+				var price = document.getElementById('price').value;
+				//console.log(price);
+				var subTotal = price * days;
+				var vat = Math.round(subTotal * 0.05);
+				var total = subTotal + vat;
+				$("#tongTien").html("Tiền phòng: $ " + subTotal);
+				$("#vat").html("Phí VAT(5%): $ " + vat);
+				$("#totalPrice").html("Tổng thanh toán: $ " + total);
+				$("#totalMoney").val(total);
 			}
 
 
+		})
+		
+		
+
+		$("#totalTien").click(function (e) {
+			e.preventDefault();
+		});
+
+		$("#bt-add").click(function (e) {
+			e.preventDefault();
+			$("#add-form").show();
+			$("#room-table").hide();
+			roomName.addEventListener('change', function(){
+				var name = roomName.value;
+				for(let i=0 ; i<bookRooms.length ; i++){
+					if (bookRooms[i].name===name){
+						document.getElementById("roomCategory").value = bookRooms[i].category;
+						document.getElementById("price").value = bookRooms[i].price;
+						document.getElementById("roomId").value = bookRooms[i].id;
+						break;
+					}
+				}
+			})
+		});
+
+		function hideAdd() {
+			$("#add-form").hide();
 		}
+		$("#bt-huy").click(function (e) {
+			e.preventDefault();
+			$("#add-form").hide();
+			$("#room-table").show();
+		});
+
+
 		function showModalConfirm() {
 			$('#confirm').modal('show');
 		}

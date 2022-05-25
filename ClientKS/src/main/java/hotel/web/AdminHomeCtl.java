@@ -4,10 +4,12 @@ import java.util.LinkedHashMap;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
+import hotel.model.GetCurrentUserRequest;
 import hotel.model.LoginRequestDto;
 import hotel.model.UserDto;
 
@@ -17,8 +19,9 @@ public class AdminHomeCtl {
 	private RestTemplate rest = new RestTemplate();
 
 	@GetMapping("/admin")
-	public String showLoginForm(Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String showLoginForm(Model model,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		if (curUser == null) {
 			model.addAttribute("loginRequest", new LoginRequestDto());
 			return "admin/login";
@@ -32,9 +35,10 @@ public class AdminHomeCtl {
 	}
 
 	@SuppressWarnings("unchecked")
-	public LinkedHashMap<String, String> haveCurrentUser() {
+	public LinkedHashMap<String, String> haveCurrentUser(String username) {
 		String urlCurUser = "http://localhost:8081/login/currentUser";
-		APIResponse apiResponse = rest.postForObject(urlCurUser, "ADMIN", APIResponse.class);
+		GetCurrentUserRequest request = new GetCurrentUserRequest("ADMIN", username);
+		APIResponse apiResponse = rest.postForObject(urlCurUser, request, APIResponse.class);
 		LinkedHashMap<String, String> curUser = (LinkedHashMap<String, String>) apiResponse.getData();
 		if (curUser.get("error") != null) {
 			return null;

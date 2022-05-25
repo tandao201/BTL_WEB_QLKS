@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
+import hotel.model.GetCurrentUserRequest;
 import hotel.model.LoginRequestDto;
 import hotel.model.Room;
 import hotel.model.RoomBooking;
@@ -33,8 +35,8 @@ public class BookingController {
 	RestTemplate rest = new RestTemplate();
 
 	@GetMapping
-	public String bookingRoom(Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String bookingRoom(Model model, @CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		model.addAttribute("booking", new RoomBookingRequestDto());
 		if (curUser == null) {
 			model.addAttribute("signupDto", new SignUpRequestDto());
@@ -56,8 +58,9 @@ public class BookingController {
 	public String showFormWhenClickBook(@RequestParam(name = "id") String id,
 			@RequestParam(name = "quantity") String quantity, @RequestParam(name = "category") String category,
 			@RequestParam(name = "image") String image, @RequestParam(name = "name") String name,
-			@RequestParam(name = "price") String price, Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+			@RequestParam(name = "price") String price, Model model,
+			@CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		if (curUser == null) {
 			model.addAttribute("user", null);
 
@@ -87,8 +90,9 @@ public class BookingController {
 	@PostMapping("/bookRoom")
 	public String bookRoomHanlder(@RequestParam(name = "checkIn") String checkIn,
 			@RequestParam(name = "checkOut") String checkOut, @RequestParam(name = "totalMoney") String total,
-			@RequestParam(name = "roomId") String id, Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+			@RequestParam(name = "roomId") String id, Model model,
+			@CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		if (curUser == null) {
 			model.addAttribute("user", null);
 
@@ -116,9 +120,10 @@ public class BookingController {
 	}
 
 	@SuppressWarnings("unchecked")
-	public LinkedHashMap<String, String> haveCurrentUser() {
+	public LinkedHashMap<String, String> haveCurrentUser(String username) {
 		String urlCurUser = "http://localhost:8081/login/currentUser";
-		APIResponse apiResponse = rest.postForObject(urlCurUser, "USER", APIResponse.class);
+		GetCurrentUserRequest request = new GetCurrentUserRequest("USER", username);
+		APIResponse apiResponse = rest.postForObject(urlCurUser, request, APIResponse.class);
 		LinkedHashMap<String, String> curUser = (LinkedHashMap<String, String>) apiResponse.getData();
 		if (curUser.get("error") != null) {
 			return null;

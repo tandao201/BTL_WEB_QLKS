@@ -1,6 +1,7 @@
 package hotel.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import hotel.model.Room;
 import hotel.model.RoomBooking;
 import hotel.model.User;
+import hotel.model.dto.PaymentRequest;
 import hotel.model.dto.RoomBookingRequestDto;
 import hotel.service.RoomBookingService;
 import hotel.service.RoomService;
@@ -45,6 +47,13 @@ public class RoomBookingController {
 	public ResponseEntity<?> getAllRoomBooking() {
 
 		List<RoomBooking> roomBookings = roomBookingService.getAllRoomBooking();
+		for (int i = 0; i < roomBookings.size(); i++) {
+			if (roomBookings.get(i).isStatus() == false) {
+				roomBookings.remove(i);
+				i--;
+			}
+
+		}
 		return ResponseEntity.ok(roomBookings);
 	}
 
@@ -77,9 +86,13 @@ public class RoomBookingController {
 	}
 
 	@PutMapping("/payment")
-	public ResponseEntity<?> updateStatus(@RequestBody String id) {
-		RoomBooking roomByid = roomBookingService.getRoomBookingById(Long.valueOf(id));
+	public ResponseEntity<?> updateStatus(@RequestBody PaymentRequest request) {
+		RoomBooking roomByid = roomBookingService.getRoomBookingById(Long.valueOf(request.getId()));
 		roomByid.setStatus(true);
+		Optional<Room> room = roomService.findRoomByNameOptional(request.getRoomname());
+		Room roomDb = room.get();
+		roomDb.setQuantity(roomDb.getQuantity() + 1);
+		roomService.updateRoom(roomDb);
 		RoomBooking roomUpdate = roomBookingService.updateRoom(roomByid);
 		return ResponseEntity.ok(roomUpdate);
 	}

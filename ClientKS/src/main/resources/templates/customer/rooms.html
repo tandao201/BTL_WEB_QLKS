@@ -8,12 +8,7 @@
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<!-- <link rel="manifest" href="site.webmanifest"> -->
-	<link rel="shortcut icon" type="image/x-icon" href="img/favicon.png">
-	<!-- Place favicon.ico in the root directory -->
-
-	<!-- <link rel="manifest" href="site.webmanifest"> -->
-	<link rel="shortcut icon" type="image/x-icon" th:href="@{/img/favicon.png}">
+	
 	<!-- Place favicon.ico in the root directory -->
 
 	<!-- Google Web Fonts -->
@@ -45,7 +40,7 @@
 	<!-- <link rel="stylesheet" href="css/responsive.css"> -->
 </head>
 
-<body style="position: relative;" onload="checkLogin()" >
+<body style="position: relative;" onload="hideAlert()">
 	<!--[if lte IE 9]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
         <![endif]-->
@@ -113,7 +108,9 @@
 						</div>
 					</div>
 				</div>
-
+				<div class="alert alert-danger" role="alert" id="alertError">
+					Bạn cần đăng nhập!
+				</div>
 			</div>
 		</div>
 
@@ -130,7 +127,7 @@
 	<!-- bradcam_area_end -->
 
 	<!-- offers_area_start -->
-	<div class="offers_area"  style="z-index: 1;" >
+	<div class="offers_area" style="z-index: 1;">
 		<div class="container">
 			<div class="row">
 				<div class="col-xl-12">
@@ -149,7 +146,7 @@
 
 					<div class="col-xl-4 col-md-4">
 						<div class="single_offers">
-							<form method="post" action="/booking">
+							<form method="post" action="/booking" onsubmit="return checkUser()">
 								<div class="about_thumb">
 									<img style="width: 239pt;height: 145pt;" name="image" th:src="${room.image}" alt="">
 								</div>
@@ -165,10 +162,10 @@
 								<input type="hidden" th:value="${room.image}" name="image">
 								<input type="hidden" th:value="${room.name}" name="name">
 								<input type="hidden" th:value="${room.price}" name="price">
-								<ul><button onclick="checkLogin()" id="bt-book" class="bt-book book_now" type="submit">Đặt
-											phòng</button></ul>
+								<ul><button id="bt-book" class="bt-book book_now" type="submit">Đặt
+										phòng</button></ul>
 							</form>
-							
+
 						</div>
 					</div>
 
@@ -191,7 +188,15 @@
 				<a class="page-link" th:href="@{'/rooms/'+${pagination.pageNumber-1}}" tabindex="-1">Previous</a>
 			</li>
 			<th:block th:each="i: ${#numbers.sequence(1, pagination.totalPage)}">
-				<li class="page-item"><a class="page-link" th:href="@{'/rooms/'+${i}}" th:text="${i}"></a></li>
+
+				<th:block th:if="${pagination.pageNumber} eq ${i}">
+					<li class="page-item active"><a class="page-link" th:href="@{'/rooms/'+${i}}" th:text="${i}"></a>
+					</li>
+				</th:block>
+
+				<th:block th:unless="${pagination.pageNumber} eq ${i}">
+					<li class="page-item"><a class="page-link" th:href="@{'/rooms/'+${i}}" th:text="${i}"></a></li>
+				</th:block>
 			</th:block>
 
 			<th:block th:if="${pagination.isLast}">
@@ -373,7 +378,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script th:src="@{/js/mail-script.js}"></script>
 
 	<script th:src="@{/js/main.js}"></script>
-	<script  >
+	<script th:inline="javascript">
 		$('#datepicker').datepicker({
 			iconsLibrary: 'fontawesome',
 			icons: {
@@ -387,17 +392,29 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 			}
 
 		});
+		function checkUser() {
+			var user = /*[[${user}]]*/ null;
+
+			if (user == null) {
+				console.log("not null");
+				$("#alertError").show();
+				setTimeout(function () {
+					$('#alertError').fadeOut('slow');
+				}, 2000);
+				return false;
+			} else {
+				$("#alertError").hide();
+				return true;
+			}
+		}
+
+
+
+
 		function hideAlert() {
-			$("#alert").hide();
+			$("#alertError").hide();
 		}
-		function isRealValue(obj)
-		{
-		 	return obj && obj !== 'null' && obj !== 'undefined';
-		}
-		function checkLogin(){
-			
-		}
-	</script >
+	</script>
 
 
 

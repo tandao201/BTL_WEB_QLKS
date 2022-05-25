@@ -138,10 +138,10 @@
 								<td th:text="${room.checkOutAt}">2022-03-02</td>
 								<td th:text="${room.price}">300</td >
 								<th:block th:if="${room.status==false}">
-									<td >Chưa thanh toán</td>
+									<td style="color: red;">Chưa thanh toán</td>
 								</th:block>
 								<th:block th:unless="${room.status==false}">
-									<td >Đã thanh toán</td>
+									<td style="color: green;">Đã thanh toán</td>
 								</th:block>
 								
 								

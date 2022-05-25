@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
 import hotel.common.PaginationMeta;
+import hotel.model.GetCurrentUserRequest;
 import hotel.model.LoginRequestDto;
 import hotel.model.RoomBooked;
 import hotel.model.SignUpRequestDto;
@@ -28,11 +30,10 @@ public class ReservationController {
 
 	List<Object> rooms;
 	Map<String, Integer> paginationMeta;
-	LinkedHashMap<String, String> curUser = haveCurrentUser();
 
 	@GetMapping
-	public String home(Model model) {
-		curUser = haveCurrentUser();
+	public String home(Model model, @CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		if (curUser == null) {
 			model.addAttribute("signupDto", new SignUpRequestDto());
 			model.addAttribute("loginRequest", new LoginRequestDto());
@@ -55,10 +56,13 @@ public class ReservationController {
 	}
 
 	@GetMapping("/{page}")
-	public String getPage(@PathVariable(value = "page") int page, Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String getPage(@PathVariable(value = "page") int page, Model model,
+			@CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		if (curUser == null) {
-			model.addAttribute("user", null);
+			model.addAttribute("signupDto", new SignUpRequestDto());
+			model.addAttribute("loginRequest", new LoginRequestDto());
+			return "customer/login";
 
 		} else {
 			UserDto user = new UserDto();
@@ -69,7 +73,7 @@ public class ReservationController {
 			model.addAttribute("user", user);
 		}
 		String url = "http://localhost:8081/api/room-booking/roomPage/" + curUser.get("username") + "?page-number="
-				+ page + "&page-size=5";
+				+ page + "&page-size=7";
 		Map<String, Object> data = rest.getForObject(url, Map.class);
 		rooms = (List<Object>) data.get("rooms");
 		paginationMeta = (Map<String, Integer>) data.get("paginationMeta");
@@ -81,7 +85,9 @@ public class ReservationController {
 	}
 
 	@GetMapping("/delete/{id}")
-	public String deleteCategories(Model model, @PathVariable String id) {
+	public String deleteCategories(Model model, @PathVariable String id,
+			@CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		String url = "http://localhost:8081/api/room-booking/" + id;
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("id", id);
@@ -93,16 +99,17 @@ public class ReservationController {
 
 	@SuppressWarnings("unchecked")
 	public void getRoomPagination(String username) {
-		String url = "http://localhost:8081/api/room-booking/roomPage/" + username + "?page-size=5";
+		String url = "http://localhost:8081/api/room-booking/roomPage/" + username + "?page-size=7";
 		Map<String, Object> data = rest.getForObject(url, Map.class);
 		rooms = (List<Object>) data.get("rooms");
 		paginationMeta = (Map<String, Integer>) data.get("paginationMeta");
 	}
 
 	@SuppressWarnings("unchecked")
-	public LinkedHashMap<String, String> haveCurrentUser() {
+	public LinkedHashMap<String, String> haveCurrentUser(String username) {
 		String urlCurUser = "http://localhost:8081/login/currentUser";
-		APIResponse apiResponse = rest.postForObject(urlCurUser, "USER", APIResponse.class);
+		GetCurrentUserRequest request = new GetCurrentUserRequest("USER", username);
+		APIResponse apiResponse = rest.postForObject(urlCurUser, request, APIResponse.class);
 		LinkedHashMap<String, String> curUser = (LinkedHashMap<String, String>) apiResponse.getData();
 		if (curUser.get("error") != null) {
 			return null;

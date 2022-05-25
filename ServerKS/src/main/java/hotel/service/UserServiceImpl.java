@@ -6,7 +6,10 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Component;
 
 import hotel.common.PaginationMeta;
@@ -78,7 +81,12 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserData getPageUser(Pageable pageable) {
-		Page<User> page = userRepository.findAll(pageable);
+		List<Order> orders = new ArrayList<Order>();
+		orders.add(new Order(Sort.Direction.DESC, "locked"));
+		orders.add(new Order(Sort.Direction.ASC, "username"));
+		Sort sort = Sort.by(orders).ascending();
+		Pageable pageable2 = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+		Page<User> page = userRepository.findAll(pageable2);
 		List<User> users = page.getContent();
 		List<UserDto> userDto = new ArrayList<>();
 		for (User user : users) {

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,9 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
+import hotel.common.PaginationMeta;
+import hotel.model.GetCurrentUserRequest;
+import hotel.model.LockedRoomRequest;
 import hotel.model.LoginRequestDto;
 import hotel.model.Room;
 import hotel.model.RoomCategories;
+import hotel.model.UpdateRoomDto;
 import hotel.model.UserDto;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,10 +34,14 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminRoomManageController {
 
 	private RestTemplate rest = new RestTemplate();
-	LinkedHashMap<String, String> curUser = haveCurrentUser();
+	List<Object> rooms;
+	Map<String, Integer> paginationMeta;
+	String success = "";
+	String error = "";
 
 	@GetMapping
-	public String showLoginForm(Model model) {
+	public String showForm(Model model, @CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		List<RoomCategories> categories = getAllCategories();
 		model.addAttribute("categories", categories);
 		model.addAttribute("room", new Room());
@@ -43,14 +52,28 @@ public class AdminRoomManageController {
 			UserDto user = setCurUser(curUser);
 			model.addAttribute("user", user);
 
-			return "admin/room-manage";
 		}
+		getPagination();
+		PaginationMeta pagination = setPage();
+		if (!success.isEmpty()) {
+			model.addAttribute("success", success);
+		}
+		if (!error.isEmpty()) {
+			model.addAttribute("error", error);
+		}
+		success = "";
+		error = "";
+		model.addAttribute("pagination", pagination);
+		model.addAttribute("rooms", rooms);
+		return "admin/room-manage";
 	}
 
 	@SuppressWarnings("unchecked")
 	@PostMapping
-	public String addNewRoom(@ModelAttribute("room") Room room, Model model) {
+	public String addNewRoom(@ModelAttribute("room") Room room, Model model,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
 		List<RoomCategories> categories = getAllCategories();
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		Map<Long, String> mapCate = new HashMap<>();
 		for (RoomCategories cate : categories) {
 			mapCate.put(cate.getIdCate(), cate.getNameCate());
@@ -66,11 +89,13 @@ public class AdminRoomManageController {
 		LinkedHashMap<String, String> data = rest.postForObject(url, room, LinkedHashMap.class);
 		log.info(data.get("name"));
 		model.addAttribute("categories", categories);
-		return "admin/room-manage";
+		return "redirect:/admin/room-manage";
 	}
 
 	@GetMapping("/room-category")
-	public String showCategories(Model model) {
+	public String showCategories(Model model,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		List<RoomCategories> categories = getAllCategories();
 		model.addAttribute("categories", categories);
 		UserDto user = setCurUser(curUser);
@@ -79,7 +104,9 @@ public class AdminRoomManageController {
 	}
 
 	@GetMapping("/room-category/{id}")
-	public String deleteCategories(Model model, @PathVariable String id) {
+	public String deleteCategories(Model model, @PathVariable String id,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		String url = "http://localhost:8081/api/categories/" + id;
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("id", id);
@@ -91,7 +118,9 @@ public class AdminRoomManageController {
 	}
 
 	@PostMapping("room-category")
-	public String addRoomCategories(@RequestParam("nameCate") String nameCate, Model model) {
+	public String addRoomCategories(@RequestParam("nameCate") String nameCate, Model model,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		RoomCategories category = new RoomCategories(nameCate);
 		String url = "http://localhost:8081/api/categories";
 		LinkedHashMap<String, String> data = rest.postForObject(url, category, LinkedHashMap.class);
@@ -100,10 +129,112 @@ public class AdminRoomManageController {
 		return "redirect:/admin/room-manage/room-category";
 	}
 
+	@GetMapping("/locked/{id}/{locked}")
+	public String lockRoom(Model model, @PathVariable("id") String id, @PathVariable("locked") String lockedStr,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
+		String url = "http://localhost:8081/api/room/locked";
+		boolean locked = Boolean.parseBoolean(lockedStr);
+		locked = !locked;
+		lockedStr = lockedStr.toString();
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("id", id);
+		params.put("locked", lockedStr);
+		LockedRoomRequest request = new LockedRoomRequest(id, locked);
+		rest.put(url, request, params);
+		UserDto user = setCurUser(curUser);
+		model.addAttribute("user", user);
+		success = "Cập nhật thành công!";
+		model.addAttribute("room", new Room());
+		return "redirect:/admin/room-manage";
+	}
+
+	@GetMapping("/{page}")
+	public String getPage(@PathVariable(value = "page") int page, Model model,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
+		List<RoomCategories> categories = getAllCategories();
+		model.addAttribute("categories", categories);
+		if (curUser == null) {
+			model.addAttribute("loginRequest", new LoginRequestDto());
+			return "admin/login";
+
+		} else {
+			UserDto user = setCurUser(curUser);
+			model.addAttribute("user", user);
+		}
+		String url = "http://localhost:8081/api/room/roomPageAdmin?page-number=" + page + "&page-size=5";
+		Map<String, Object> data = rest.getForObject(url, Map.class);
+		rooms = (List<Object>) data.get("rooms");
+		paginationMeta = (Map<String, Integer>) data.get("paginationMeta");
+
+		PaginationMeta pagination = setPage();
+		model.addAttribute("pagination", pagination);
+		model.addAttribute("rooms", rooms);
+		model.addAttribute("room", new Room());
+		return "admin/room-manage";
+	}
+
+	private List<Room> getAllRooms() {
+		String url = "http://localhost:8081/api/room";
+		List<Room> rooms = Arrays.asList(rest.getForObject(url, Room[].class));
+		return rooms;
+	}
+
+	@PostMapping("/edit")
+	public String editRoom(Model model, @RequestParam("roomName") String name, @RequestParam("price") String price,
+			@RequestParam("image") String image, @RequestParam("quantity") String quantity,
+			@RequestParam("roomId") String id, @RequestParam("idCategory") String categoryId,
+			@RequestParam("description") String description,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
+		List<RoomCategories> categories = getAllCategories();
+		Map<Long, String> mapCate = new HashMap<>();
+		for (RoomCategories cate : categories) {
+			mapCate.put(cate.getIdCate(), cate.getNameCate());
+
+		}
+		String url = "http://localhost:8081/api/room";
+		Long idLong = Long.parseLong(id);
+		Long quantityLong = Long.parseLong(quantity);
+		Long idCate = Long.parseLong(categoryId);
+		Long priceLong = Long.parseLong(price);
+		UpdateRoomDto updateRoomDto = new UpdateRoomDto(idLong, name, priceLong, image, quantityLong, idCate,
+				mapCate.get(idCate), description);
+		Map<String, String> param = new HashMap<>();
+		param.put("id", id);
+		param.put("name", name);
+		param.put("price", price);
+		param.put("image", image);
+		param.put("quantity", quantity);
+		param.put("categoryId", categoryId);
+		param.put("description", description);
+		rest.put(url, updateRoomDto, param);
+		UserDto user = setCurUser(curUser);
+		model.addAttribute("user", user);
+		success = "Cập nhật thành công!";
+		model.addAttribute("room", new Room());
+		return "redirect:/admin/room-manage";
+	}
+
+	@GetMapping("/delete/{id}")
+	public String deleteRoom(Model model, @PathVariable String id,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
+		String url = "http://localhost:8081/api/room/" + id;
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("id", id);
+		rest.delete(url, params);
+		UserDto user = setCurUser(curUser);
+		model.addAttribute("user", user);
+		return "redirect:/admin/room-manage";
+	}
+
 	@SuppressWarnings("unchecked")
-	public LinkedHashMap<String, String> haveCurrentUser() {
+	public LinkedHashMap<String, String> haveCurrentUser(String username) {
 		String urlCurUser = "http://localhost:8081/login/currentUser";
-		APIResponse apiResponse = rest.postForObject(urlCurUser, "ADMIN", APIResponse.class);
+		GetCurrentUserRequest request = new GetCurrentUserRequest("ADMIN", username);
+		APIResponse apiResponse = rest.postForObject(urlCurUser, request, APIResponse.class);
 		LinkedHashMap<String, String> curUser = (LinkedHashMap<String, String>) apiResponse.getData();
 		if (curUser.get("error") != null) {
 			return null;
@@ -126,6 +257,25 @@ public class AdminRoomManageController {
 		String url = "http://localhost:8081/api/categories";
 		List<RoomCategories> categories = Arrays.asList(rest.getForObject(url, RoomCategories[].class));
 		return categories;
+	}
+
+	private PaginationMeta setPage() {
+		PaginationMeta page = new PaginationMeta();
+		page.setTotalCount(paginationMeta.get("totalCount"));
+		page.setPageSize(paginationMeta.get("pageSize"));
+		page.setTotalPage(paginationMeta.get("totalPage"));
+		page.setPageNumber(paginationMeta.get("pageNumber"));
+		page.setIsFirst(paginationMeta.get("isFirst"));
+		page.setIsLast(paginationMeta.get("isLast"));
+		return page;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void getPagination() {
+		String url = "http://localhost:8081/api/room/roomPageAdmin?page-size=5";
+		Map<String, Object> data = rest.getForObject(url, Map.class);
+		rooms = (List<Object>) data.get("rooms");
+		paginationMeta = (Map<String, Integer>) data.get("paginationMeta");
 	}
 
 }

@@ -65,15 +65,15 @@
 				</div>
 				<div class="navbar-nav w-100">
 
-					<a href="/admin/room-manage" class="nav-item nav-link active"><i
-							class="fa-solid fa-door-open"></i>Quản lí
+					<a href="/admin/room-manage" class="nav-item nav-link active"><i class="fa-solid fa-door-open"></i>Quản lí
 						phòng</a>
-					<a href="/admin/room-manage/room-category" class="nav-item nav-link"><i
+					<a href="/admin/room-manage/room-category" class="nav-item nav-link "><i
 							class="fa-solid fa-door-open"></i>Loại phòng</a>
 					<a href="/admin/account-manage" class="nav-item nav-link"><i
 							class="fa-solid fa-people-roof"></i>Quản lí khách hàng</a>
-					<a href="/admin/revervation" class="nav-item nav-link "><i class="fa-solid fa-suitcase"></i>Quản lí
+					<a href="/admin/revervation" class="nav-item nav-link"><i class="fa-solid fa-suitcase"></i>Quản lí
 						đặt phòng</a>
+					<a href="/admin/statistic" class="nav-item nav-link "><i class="fa-solid fa-chart-simple"></i>Thống kê</a>
 					<hr>
 					<a th:href="@{/}" class="nav-item nav-link"><i class="fa-solid fa-house"></i>Trang chủ</a>
 					<a href="/admin/login/account" class="nav-item nav-link "><i class="fa-solid fa-user"></i>Cá
@@ -113,7 +113,7 @@
 
 
 			<div th:if="${success!=null}">
-				<div id="erroAlert" class="alert alert-success" role="alert" th:text="${success}">
+				<div id="successAlert" class="alert alert-success" role="alert" th:text="${success}">
 
 				</div>
 			</div>
@@ -121,7 +121,7 @@
 
 
 			<!-- room table start -->
-			<div class="col-sm-12 col-xl-11" id="room-table">
+			<div  id="room-table">
 				<div style="margin: 6pt;position: relative;" class="bg-light rounded h-100 p-4">
 					<h5 style="display: inline-block;" class="mb-4">Danh sách phòng</h5>
 					<a><button style="float: right;margin: 5pt;" id="bt-add" type="button" class="btn btn-success">Thêm
@@ -141,54 +141,97 @@
 								<th scope="col"></th>
 							</tr>
 						</thead>
-						<tbody>
-							<tr>
-								<th scope="row">1</th>
-								<td>Ai do</td>
-								<td>2000</td>
-								<td>28</td>
-								<td>Phòng đôi</td>
-								<td>Tích xanh</td>
-								<td><button type="button" class="btn btn-outline-warning">Edit</button></td>
-								<td><button type="button" class="btn btn-outline-danger">Delete</button></td>
-								<td><button id="bt-vohieu" type="button" class="btn btn-outline-secondary">Vô hiệu
-										hóa</button>
-									<button type="button" id="bt-kichhoat" class="btn btn-outline-success">Kích
-										hoạt</button>
-								</td>
+						<tbody>							
+							<th:block th:each="room : ${rooms}">
+								<tr>
+									<th scope="row" th:text="${room.id}"></th>
+									<td th:text="${room.name}"></td>
+									<td th:text="${room.price}"></td>
+									<td th:text="${room.quantity}"></td>
+									<td th:text="${room.category}"></td>
+									<th:block th:if="${room.locked==false}">
+										<td><i style="color: green;" class="fa-solid fa-circle-check"></i></td>
+									</th:block>
+									<th:block th:unless="${room.locked==false}">
+										<td><i style="color: red;" class="fa-solid fa-circle-xmark"></i></td>
+									</th:block>
+									<td>
+											<button style="height: 47pt;" type="button"
+											class="btn btn-outline-warning bt-vohieu"
+											th:onclick="showEditForm([[${room.id}]],[[${room.name}]],[[${room.image}]],[[${room.price}]],[[${room.quantity}]],[[${room.categoryId}]],[[${room.description}]])">
+											Edit
+											</button>
+									</td>
+									<td><a th:href="@{/admin/room-manage/delete/{id}(id=${room.id})}">
+										<button type="button" style="height: 47pt;" 
+											class="btn btn-outline-danger">Delete</button>
+										</a>	
 
-							</tr>
-							<tr>
-								<th scope="row">2</th>
-								<td>Mark</td>
-								<td>Otto</td>
-								<td>mark@email.com</td>
-							</tr>
-							<tr>
-								<th scope="row">3</th>
-								<td>Jacob</td>
-								<td>Thornton</td>
-								<td>jacob@email.com</td>
-							</tr>
+									</td>
+									<th:block th:if="${room.locked==false}">
+										<td><a
+												th:href="@{'/admin/room-manage/locked/'+${room.id} +'/' +${room.locked}}"><button
+													style="height: 47pt;width: 90pt;" type="button"
+													class="btn btn-outline-secondary bt-vohieu">Vô
+													hiệu
+													hóa</button></a></td>
+									</th:block>
+									<th:block th:unless="${room.locked==false}">
+										<td><a
+												th:href="@{'/admin/room-manage/locked/'+${room.id} +'/' +${room.locked}}"><button
+													style="height: 47pt;width: 90pt;" type="button"
+													class="btn btn-outline-success bt-kichhoat">Kích
+													hoạt</button></a></td>
+									</th:block>
+								</tr>
+							</th:block>
 						</tbody>
 					</table>
 				</div>
 				<!-- Pagination start -->
-				<nav style="position: absolute;bottom: 0;margin-bottom: 30pt;right: 0;margin-right: 84pt;"
-					aria-label="Page navigation example">
-					<ul class="pagination justify-content-right">
-						<li class="page-item disabled">
-							<a class="page-link" href="#" tabindex="-1">Previous</a>
-						</li>
-						<li class="page-item"><a class="page-link" href="#">1</a></li>
-						<li class="page-item"><a class="page-link" href="#">2</a></li>
-						<li class="page-item"><a class="page-link" href="#">3</a></li>
-						<li class="page-item">
-							<a class="page-link" href="#">Next</a>
-						</li>
-					</ul>
-				</nav>
-				<!-- Pagination end -->
+				<nav style="position: absolute;bottom: 0;margin-bottom: -64pt;right: 0;margin-right: 5pt;z-index: 2;"
+							aria-label="Page navigation example">
+							<ul class="pagination justify-content-right">
+								<th:block th:if="${pagination.pageNumber}==1">
+									<li class="page-item disabled">
+										<a class="page-link" href="#" tabindex="-1">Previous</a>
+									</li>
+								</th:block>
+								<th:block th:if="${pagination.pageNumber>1}">
+									<li class="page-item">
+										<a class="page-link"
+											th:href="@{'/admin/room-manage/'+${pagination.pageNumber-1}}"
+											tabindex="-1">Previous</a>
+									</li>
+								</th:block>
+
+								<th:block th:each="i: ${#numbers.sequence(1, pagination.totalPage)}">
+									<th:block th:if="${pagination.pageNumber} eq ${i}">
+										<li class="page-item active"><a class="page-link"
+												th:href="@{'/admin/room-manage/'+${i}}" th:text="${i}"></a></li>
+									</th:block>
+
+									<th:block th:unless="${pagination.pageNumber} eq ${i}">
+										<li class="page-item "><a class="page-link"
+												th:href="@{'/admin/room-manage/'+${i}}" th:text="${i}"></a></li>
+									</th:block>
+
+								</th:block>
+
+								<th:block th:if="${pagination.isLast}">
+									<li class="page-item disabled">
+										<a class="page-link" href="#">Next</a>
+									</li>
+								</th:block>
+								<th:block th:if="${pagination.isLast}==0">
+									<li class="page-item">
+										<a class="page-link"
+											th:href="@{'/admin/room-manage/'+${pagination.pageNumber+1}}">Next</a>
+									</li>
+								</th:block>
+							</ul>
+						</nav>
+						<!-- Pagination end -->
 			</div>
 
 			<!-- room table  end -->
@@ -270,7 +313,83 @@
 			</div>
 			<!-- room add form end -->
 
+			<!-- room edit form start -->
+			<div class="page-content page-container" id="edit-form">
+				<div class="padding">
+					<div class="row container d-flex justify-content-center">
+						<div class="col-xl-6 col-md-12">
+							<div class="card user-card-full">
+								<div class="row m-l-0 m-r-0">
+									<div class="col-sm-4 bg-c-lite-green user-profile">
+										<div class="card-block text-center text-white">
 
+											<h3 class="f-w-600 " style="color: white;">Sửa thông tin phòng</h3>
+											<i class=" mdi mdi-square-edit-outline feather icon-edit m-t-10 f-16"></i>
+										</div>
+									</div>
+									<div class="col-sm-8">
+										<div class="card-block">
+											<div class="row">
+												<form method="post" action="/admin/room-manage/edit" >
+													<div class="col-sm-6">
+														<input name="roomId" id="roomIdEdit"
+															type="hidden"></input>
+														<p class="m-b-10 f-w-600">Tên phòng</p>
+														<input name="roomName" id="nameEdit" type="text" size="50"
+															class="text f-w-400" required>
+													</div>
+													<div class="col-sm-6">
+														<p class="m-b-10 f-w-600">Hình ảnh</p>
+														<input name="image" id="imageEdit" type="text"
+															size="50" class="text f-w-400" required></input>
+													</div>
+													<div class="col-sm-6">
+														<p class="m-b-10 f-w-600">Giá</p>
+														<input name="price" id="priceEdit" type="number"
+															class="text f-w-400"></input>
+													</div>
+													<div class="col-sm-6">
+														<p class="m-b-10 f-w-600">Số lượng</p>
+														<input name="quantity" id="quantityEdit"
+															type="number" class="text f-w-400"></input>
+													</div>
+
+													<div class="col-sm-6">
+														<p class="m-b-10 f-w-600">Loại phòng</p>
+
+														<select id="categoryIdEdit" name="categoryIdEdit"
+															class="form-select form-select-sm"
+															aria-label=".form-select-sm example">
+
+															<option th:each="category : ${categories}"
+																th:value="${category.idCate}"
+																th:utext="${category.nameCate}"></option>
+														</select>
+														<input name="idCategory" id="idCategory" type="hidden" ></input>
+													</div>
+													<div class="col-sm-6">
+														<p class="m-b-10 f-w-600">Mô tả</p>
+														<textarea name="description" id="descriptionEdit"
+															 rows="5" cols="51" class="text f-w-400"
+															required></textarea>
+													</div>
+													<button type="submit" onclick="validateQuantity()"
+														style="margin-top: 8pt;"
+														class="btn btn-outline-success">Lưu</button>
+													<button type="button" id="bt-huy-edit" style="margin-top: 8pt;"
+														class="btn btn-outline-danger">Hủy</button>
+												</form>
+											</div>
+
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- room edit form end -->
 
 			<!-- Footer Start -->
 			<div style="position: absolute;bottom: 0;" class="container-fluid pt-2 px-2">
@@ -329,6 +448,7 @@
 
 		function hideAdd() {
 			$("#add-form").hide();
+			$("#edit-form").hide();
 		}
 		$("#bt-huy").click(function (e) {
 			e.preventDefault();
@@ -338,6 +458,8 @@
 
 
 		function validateQuantity() {
+			var idCate = document.getElementById('categoryIdEdit');
+			$('#idCategory').val(idCate.value);
 			var price = document.getElementById("price")
 				, quantity = document.getElementById("quantity");
 			var priceInt = parseInt(price.value);
@@ -357,6 +479,40 @@
 
 
 		}
+		function showModalConfirm() {
+			$('#confirm').modal('show');
+		}
+		function showEditForm(id, name, image, price, quantity, categoryId, description) {
+			$("#add-form").hide();
+			$("#room-table").hide();
+			$("#edit-form").show();	
+			$('#roomIdEdit').val(id)
+			$("#nameEdit").val(name);
+			$("#imageEdit").val(image);
+			$("#priceEdit").val(price);
+			$("#quantityEdit").val(quantity);
+			$("#categoryIdEdit").val(categoryId);
+			$("#idCategory").val(categoryId);
+			$("#descriptionEdit").val(description);
+			console.log(id);
+		}
+		$("#bt-huy-edit").click(function (e) {
+			e.preventDefault();
+			$("#add-form").hide();
+			$("#edit-form").hide();
+			$("#room-table").show();
+		});
+		$(function () {
+
+
+
+			setTimeout(function () {
+				$('#successAlert').fadeOut('slow');
+			}, 2000);
+
+		});
+		
+		
 	</script>
 </body>
 

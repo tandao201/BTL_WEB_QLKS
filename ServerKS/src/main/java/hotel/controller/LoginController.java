@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import hotel.model.dto.GetCurrentUserRequest;
 import hotel.model.dto.LoginRequestDto;
 import hotel.model.dto.LogoutRequestDto;
 import hotel.service.LoginServiceImpl;
@@ -27,8 +28,8 @@ public class LoginController {
 	}
 
 	@PostMapping("/currentUser")
-	public ResponseEntity<?> getCurrentUser(@RequestBody String role) {
-		return ResponseEntity.ok(loginServiceImpl.getCurrenUser(role));
+	public ResponseEntity<?> getCurrentUser(@RequestBody GetCurrentUserRequest request) {
+		return ResponseEntity.ok(loginServiceImpl.getCurrenUser(request.getRole(), request.getUsername()));
 	}
 
 	@PostMapping("/logout")

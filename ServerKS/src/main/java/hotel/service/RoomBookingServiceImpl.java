@@ -1,11 +1,12 @@
 package hotel.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import hotel.common.PaginationMeta;
@@ -57,23 +58,21 @@ public class RoomBookingServiceImpl implements RoomBookingService {
 
 	@Override
 	public RoomBookedData getPageRoomBooked(Pageable pageable, String username) {
-
-		Page<RoomBooking> roomPage = bookingRepository.findAll(pageable);
+		Sort sort = Sort.by("status").ascending();
+		Pageable pageable2 = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+		Page<RoomBooking> roomPage = bookingRepository.findAllByUsername(username, pageable2);
 		List<RoomBooking> rooms = roomPage.getContent();
-		List<RoomBooking> main = new ArrayList<>();
-		for (int i = 0; i < rooms.size(); i++) {
-			if (rooms.get(i).getUsername().equalsIgnoreCase(username))
-				main.add(rooms.get(i));
-		}
 		PaginationMeta roomPagination = PaginationMeta.createPagination(roomPage);
 		PaginationMetaDto dto = PaginationMetaMapper.toPaginationDto(roomPagination);
-		RoomBookedData roomData = new RoomBookedData(main, dto);
+		RoomBookedData roomData = new RoomBookedData(rooms, dto);
 		return roomData;
 	}
 
 	@Override
 	public RoomBookedData getPageRoomBookedAdmin(Pageable pageable) {
-		Page<RoomBooking> roomPage = bookingRepository.findAll(pageable);
+		Sort sort = Sort.by("status").ascending();
+		Pageable pageable2 = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+		Page<RoomBooking> roomPage = bookingRepository.findAll(pageable2);
 		List<RoomBooking> rooms = roomPage.getContent();
 		PaginationMeta roomPagination = PaginationMeta.createPagination(roomPage);
 		PaginationMetaDto dto = PaginationMetaMapper.toPaginationDto(roomPagination);

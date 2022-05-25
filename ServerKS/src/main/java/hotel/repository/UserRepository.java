@@ -39,7 +39,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Optional<User> findByActivedAndUsername(Boolean actived, String username);
 
-	@Query(value = "SELECT * FROM USER WHERE actived=1 and role like CONCAT(:role) ", nativeQuery = true)
-	Optional<User> findByActivedAndRole(String role);
+	@Query(value = "SELECT * FROM USER WHERE actived=1 and role=?1 and username=?2 ", nativeQuery = true)
+	Optional<User> findByActivedAndRole(String role, String username);
 
+	@Query(value = "select count(id) from user where enabled = true and locked = false", nativeQuery = true)
+	Long countTotalAccountEnabled();
 }

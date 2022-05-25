@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import hotel.common.APIResponse;
 import hotel.common.PaginationMeta;
 import hotel.model.AdminSignUpRequest;
+import hotel.model.GetCurrentUserRequest;
 import hotel.model.LockedUserRequest;
 import hotel.model.LoginRequestDto;
 import hotel.model.UpdateRequestDto;
@@ -31,14 +33,12 @@ public class AdminAccountManageController {
 	RestTemplate rest = new RestTemplate();
 	List<Object> users;
 	Map<String, Integer> paginationMeta;
-	LinkedHashMap<String, String> curUser = haveCurrentUser();
 	String success = "";
 	String error = "";
 
 	@GetMapping
-	public String showForm(Model model) {
-		curUser = haveCurrentUser();
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String showForm(Model model, @CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		getPagination();
 
 		if (curUser == null) {
@@ -65,8 +65,9 @@ public class AdminAccountManageController {
 	}
 
 	@GetMapping("/{page}")
-	public String getPage(@PathVariable(value = "page") int page, Model model) {
-		curUser = haveCurrentUser();
+	public String getPage(@PathVariable(value = "page") int page, Model model,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		if (curUser == null) {
 			model.addAttribute("loginRequest", new LoginRequestDto());
 			return "admin/login";
@@ -88,7 +89,9 @@ public class AdminAccountManageController {
 	}
 
 	@GetMapping("/delete/{id}")
-	public String deleteUser(Model model, @PathVariable String id) {
+	public String deleteUser(Model model, @PathVariable String id,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		String url = "http://localhost:8081/users/" + id;
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("id", id);
@@ -102,7 +105,8 @@ public class AdminAccountManageController {
 
 	@PostMapping("/edit")
 	public String editUser(Model model, @RequestParam("username") String username, @RequestParam("email") String email,
-			@RequestParam("phone") String phone, @RequestParam("role") String role, @RequestParam("name") String name) {
+			@RequestParam("phone") String phone, @RequestParam("role") String role, @RequestParam("name") String name,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String usernameCookie) {
 		String url = "http://localhost:8081/users/admin";
 		UpdateRequestDto updateRequestDto = new UpdateRequestDto(username, email, phone, "", name, role);
 		Map<String, String> param = new HashMap<>();
@@ -112,7 +116,7 @@ public class AdminAccountManageController {
 		param.put("role", role);
 		param.put("name", name);
 		rest.put(url, updateRequestDto, param);
-		curUser = haveCurrentUser();
+		LinkedHashMap<String, String> curUser = haveCurrentUser(usernameCookie);
 		UserDto user = setCurUser(curUser);
 		model.addAttribute("user", user);
 		success = "Cập nhật thành công!";
@@ -121,8 +125,10 @@ public class AdminAccountManageController {
 	}
 
 	@GetMapping("/locked/{id}/{locked}")
-	public String lockUser(Model model, @PathVariable("id") String id, @PathVariable("locked") String lockedStr) {
+	public String lockUser(Model model, @PathVariable("id") String id, @PathVariable("locked") String lockedStr,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
 		String url = "http://localhost:8081/users/admin/locked";
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		boolean locked = Boolean.parseBoolean(lockedStr);
 		locked = !locked;
 		lockedStr = lockedStr.toString();
@@ -159,7 +165,9 @@ public class AdminAccountManageController {
 
 	@SuppressWarnings("unchecked")
 	@PostMapping
-	public String addNewUser(@ModelAttribute("account") AdminSignUpRequest request, Model model) {
+	public String addNewUser(@ModelAttribute("account") AdminSignUpRequest request, Model model,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		UserDto user = setCurUser(curUser);
 		model.addAttribute("user", user);
 		request.setEnabled(true);
@@ -177,9 +185,23 @@ public class AdminAccountManageController {
 	}
 
 	@SuppressWarnings("unchecked")
-	public LinkedHashMap<String, String> haveCurrentUser() {
+	public LinkedHashMap<String, String> haveCurrentUser(String username) {
 		String urlCurUser = "http://localhost:8081/login/currentUser";
-		APIResponse apiResponse = rest.postForObject(urlCurUser, "ADMIN", APIResponse.class);
+		GetCurrentUserRequest request = new GetCurrentUserRequest("ADMIN", username);
+		APIResponse apiResponse = rest.postForObject(urlCurUser, request, APIResponse.class);
+		LinkedHashMap<String, String> curUser = (LinkedHashMap<String, String>) apiResponse.getData();
+		if (curUser.get("error") != null) {
+			return null;
+		} else {
+			return curUser;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public LinkedHashMap<String, String> haveCurrentUserForEditUsers(String username, String role) {
+		String urlCurUser = "http://localhost:8081/login/currentUser";
+		GetCurrentUserRequest request = new GetCurrentUserRequest(role, username);
+		APIResponse apiResponse = rest.postForObject(urlCurUser, request, APIResponse.class);
 		LinkedHashMap<String, String> curUser = (LinkedHashMap<String, String>) apiResponse.getData();
 		if (curUser.get("error") != null) {
 			return null;

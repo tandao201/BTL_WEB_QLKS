@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
+import hotel.model.GetCurrentUserRequest;
 import hotel.model.LoginRequestDto;
 import hotel.model.PasswordChangeDto;
 import hotel.model.SignUpRequestDto;
@@ -23,8 +25,9 @@ public class PasswordChangeController {
 	private RestTemplate rest = new RestTemplate();
 
 	@GetMapping()
-	public String showFormPasswordChange(Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String showFormPasswordChange(Model model,
+			@CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		if (curUser == null) {
 			model.addAttribute("signupDto", new SignUpRequestDto());
 			model.addAttribute("loginRequest", new LoginRequestDto());
@@ -51,9 +54,11 @@ public class PasswordChangeController {
 			UserDto user = new UserDto();
 			user.setAvatar(data.get("avatar"));
 			user.setName(data.get("name"));
+			user.setEmail(data.get("email"));
+			user.setPhone(data.get("phone"));
 			model.addAttribute("user", user);
 			model.addAttribute("error", data.get("error"));
-
+			return "customer/passwordChange";
 		} else {
 			UserDto user = new UserDto();
 			user.setEmail(data.get("email"));
@@ -68,9 +73,10 @@ public class PasswordChangeController {
 	}
 
 	@SuppressWarnings("unchecked")
-	public LinkedHashMap<String, String> haveCurrentUser() {
+	public LinkedHashMap<String, String> haveCurrentUser(String username) {
 		String urlCurUser = "http://localhost:8081/login/currentUser";
-		APIResponse apiResponse = rest.postForObject(urlCurUser, "USER", APIResponse.class);
+		GetCurrentUserRequest request = new GetCurrentUserRequest("USER", username);
+		APIResponse apiResponse = rest.postForObject(urlCurUser, request, APIResponse.class);
 		LinkedHashMap<String, String> curUser = (LinkedHashMap<String, String>) apiResponse.getData();
 		if (curUser.get("error") != null) {
 			return null;

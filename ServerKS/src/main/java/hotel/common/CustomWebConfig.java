@@ -14,6 +14,7 @@ public class CustomWebConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+
 		PageableHandlerMethodArgumentResolver argumentResolver = new PageableHandlerMethodArgumentResolver();
 		argumentResolver.setPageParameterName("page-number");
 		argumentResolver.setSizeParameterName("page-size");

@@ -179,9 +179,9 @@ public class LoginServiceImpl implements UserDetailsService {
 		return aiApiResponse;
 	}
 
-	public APIResponse getCurrenUser(String role) {
+	public APIResponse getCurrenUser(String role, String username) {
 		APIResponse apiResponse = new APIResponse();
-		Optional<User> curUser = userRepository.findByActivedAndRole(role);
+		Optional<User> curUser = userRepository.findByActivedAndRole(role, username);
 		if (curUser.isPresent()) {
 			User user = curUser.get();
 			UserDto userDto = UserMapper.toUserDto(user);

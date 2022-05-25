@@ -7,10 +7,12 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
+import hotel.model.GetCurrentUserRequest;
 import hotel.model.LoginRequestDto;
 import hotel.model.Room;
 import hotel.model.RoomDto;
@@ -22,8 +24,8 @@ public class homeCTL {
 	RestTemplate rest = new RestTemplate();
 
 	@GetMapping("/")
-	public String home(Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String home(Model model, @CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		List<Room> sugRooms = getRoomSuggest();
 		List<RoomDto> dtoSugs = new ArrayList<>();
 		for (Room room : sugRooms) {
@@ -33,7 +35,7 @@ public class homeCTL {
 		if (curUser == null) {
 			model.addAttribute("signupDto", new SignUpRequestDto());
 			model.addAttribute("loginRequest", new LoginRequestDto());
-			return "customer/login";
+			model.addAttribute("user", null);
 
 		} else {
 			UserDto user = new UserDto();
@@ -47,8 +49,8 @@ public class homeCTL {
 	}
 
 	@GetMapping("/about")
-	public String about(Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String about(Model model, @CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		List<Room> sugRooms = getRoomSuggest();
 		List<RoomDto> dtoSugs = new ArrayList<>();
 		for (Room room : sugRooms) {
@@ -58,7 +60,7 @@ public class homeCTL {
 		if (curUser == null) {
 			model.addAttribute("signupDto", new SignUpRequestDto());
 			model.addAttribute("loginRequest", new LoginRequestDto());
-			return "customer/login";
+			model.addAttribute("user", null);
 
 		} else {
 			UserDto user = new UserDto();
@@ -72,8 +74,8 @@ public class homeCTL {
 	}
 
 	@GetMapping("/contact")
-	public String contact(Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String contact(Model model, @CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		List<Room> sugRooms = getRoomSuggest();
 		List<RoomDto> dtoSugs = new ArrayList<>();
 		for (Room room : sugRooms) {
@@ -83,7 +85,7 @@ public class homeCTL {
 		if (curUser == null) {
 			model.addAttribute("signupDto", new SignUpRequestDto());
 			model.addAttribute("loginRequest", new LoginRequestDto());
-			return "customer/login";
+			model.addAttribute("user", null);
 
 		} else {
 			UserDto user = new UserDto();
@@ -97,9 +99,10 @@ public class homeCTL {
 	}
 
 	@SuppressWarnings("unchecked")
-	public LinkedHashMap<String, String> haveCurrentUser() {
+	public LinkedHashMap<String, String> haveCurrentUser(String username) {
 		String urlCurUser = "http://localhost:8081/login/currentUser";
-		APIResponse apiResponse = rest.postForObject(urlCurUser, "USER", APIResponse.class);
+		GetCurrentUserRequest request = new GetCurrentUserRequest("USER", username);
+		APIResponse apiResponse = rest.postForObject(urlCurUser, request, APIResponse.class);
 		LinkedHashMap<String, String> curUser = (LinkedHashMap<String, String>) apiResponse.getData();
 		if (curUser.get("error") != null) {
 			return null;

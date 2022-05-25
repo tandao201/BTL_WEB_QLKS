@@ -1,6 +1,7 @@
 package hotel.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,5 +28,9 @@ public interface RoomService {
 	public List<Room> getRoomSuggest();
 
 	public RoomData getPageRoom(Pageable pageable);
+
+	public RoomData getPageRoomAdmin(Pageable pageable);
+
+	public Optional<Room> findRoomByNameOptional(String name);
 
 }

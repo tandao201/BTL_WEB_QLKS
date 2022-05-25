@@ -1,6 +1,10 @@
 package hotel.web;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -8,15 +12,23 @@ import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import hotel.common.APIResponse;
 import hotel.common.PaginationMeta;
+import hotel.model.GetCurrentUserRequest;
 import hotel.model.LoginRequestDto;
+import hotel.model.PaymentRequest;
+import hotel.model.Room;
 import hotel.model.RoomBooked;
+import hotel.model.RoomBooking;
+import hotel.model.RoomBookingRequestDto;
 import hotel.model.UserDto;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,11 +41,11 @@ public class AdminRevervationController {
 
 	List<Object> rooms;
 	Map<String, Integer> paginationMeta;
-	LinkedHashMap<String, String> curUser = haveCurrentUser();
 
 	@GetMapping
-	public String home(Model model) {
-		curUser = haveCurrentUser();
+	public String home(Model model, @CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
+
 		if (curUser == null) {
 			model.addAttribute("user", null);
 			model.addAttribute("loginRequest", new LoginRequestDto());
@@ -47,17 +59,19 @@ public class AdminRevervationController {
 			model.addAttribute("user", user);
 		}
 		getRoomPagination("");
-		List<RoomBooked> dtoSugs = new ArrayList<>();
 		PaginationMeta page = setPage();
 		model.addAttribute("pagination", page);
 		model.addAttribute("rooms", rooms);
+		List<Room> bookRooms = getAllRoom();
+		model.addAttribute("bookRooms", bookRooms);
 
 		return "admin/room-booked";
 	}
 
 	@GetMapping("/{page}")
-	public String getPage(@PathVariable(value = "page") int page, Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String getPage(@PathVariable(value = "page") int page, Model model,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		if (curUser == null) {
 			model.addAttribute("user", null);
 
@@ -77,26 +91,64 @@ public class AdminRevervationController {
 		PaginationMeta pagination = setPage();
 		model.addAttribute("pagination", pagination);
 		model.addAttribute("rooms", rooms);
+		List<Room> bookRooms = getAllRoom();
+		model.addAttribute("bookRooms", bookRooms);
 		return "admin/room-booked";
 	}
 
 	@GetMapping("/delete/{id}")
-	public String deleteCategories(Model model, @PathVariable String id) {
+	public String deleteCategories(Model model, @PathVariable String id,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		String url = "http://localhost:8081/api/room-booking/" + id;
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("id", id);
 		rest.delete(url, params);
 		UserDto user = setCurUser(curUser);
 		model.addAttribute("user", user);
-		return "redirect:/revervation";
+		return "redirect:/admin/revervation";
 	}
 
-	@GetMapping("/update/{id}")
-	public String updateRoomBooked(Model model, @PathVariable String id) {
+	@GetMapping("/update/{id}/{roomname}")
+	public String updateRoomBooked(Model model, @PathVariable String id, @PathVariable String roomname) {
 		String url = "http://localhost:8081/api/room-booking/payment";
 		Map<String, String> param = new HashMap<>();
 		param.put("id", id);
-		rest.put(url, id, param);
+		param.put("roomname", roomname);
+		PaymentRequest request = new PaymentRequest(id, roomname);
+		rest.put(url, request, param);
+		return "redirect:/admin/revervation";
+	}
+
+	@PostMapping("/bookRoomAdmin")
+	public String bookRoomHanlder(@RequestParam(name = "checkIn") String checkIn,
+			@RequestParam(name = "checkOut") String checkOut, @RequestParam(name = "totalMoney") String total,
+			@RequestParam(name = "roomId") String id, Model model,
+			@CookieValue(value = "userAdmin", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
+		if (curUser == null) {
+			model.addAttribute("user", null);
+
+		} else {
+			UserDto user = new UserDto();
+			user.setEmail(curUser.get("email"));
+			user.setName(curUser.get("name"));
+			user.setAvatar(curUser.get("avatar"));
+			user.setPhone(curUser.get("phone"));
+			model.addAttribute("user", user);
+		}
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate checkInAt = LocalDate.parse(checkIn, formatter);
+		LocalDate checkOutAt = LocalDate.parse(checkOut, formatter);
+		LocalDateTime checkInDate = checkInAt.atStartOfDay();
+		LocalDateTime checkOutDate = checkOutAt.atStartOfDay();
+		Long totalLong = Long.parseLong(total);
+		Long roomId = Long.parseLong(id);
+		RoomBookingRequestDto booking = new RoomBookingRequestDto(checkInDate, checkOutDate, totalLong, false, roomId,
+				"anonymous");
+		String url = "http://localhost:8081/api/room-booking";
+		RoomBooking roomBooking = rest.postForObject(url, booking, RoomBooking.class);
+		log.info(roomBooking.getTotalMoney() + "");
 		return "redirect:/admin/revervation";
 	}
 
@@ -108,10 +160,17 @@ public class AdminRevervationController {
 		paginationMeta = (Map<String, Integer>) data.get("paginationMeta");
 	}
 
+	private List<Room> getAllRoom() {
+		String url = "http://localhost:8081/api/room";
+		List<Room> rooms = Arrays.asList(rest.getForObject(url, Room[].class));
+		return rooms;
+	}
+
 	@SuppressWarnings("unchecked")
-	public LinkedHashMap<String, String> haveCurrentUser() {
+	public LinkedHashMap<String, String> haveCurrentUser(String username) {
 		String urlCurUser = "http://localhost:8081/login/currentUser";
-		APIResponse apiResponse = rest.postForObject(urlCurUser, "ADMIN", APIResponse.class);
+		GetCurrentUserRequest request = new GetCurrentUserRequest("ADMIN", username);
+		APIResponse apiResponse = rest.postForObject(urlCurUser, request, APIResponse.class);
 		LinkedHashMap<String, String> curUser = (LinkedHashMap<String, String>) apiResponse.getData();
 		if (curUser.get("error") != null) {
 			return null;

@@ -18,7 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import hotel.common.APIResponse;
 import hotel.model.Room;
+import hotel.model.dto.LockedRoomRequest;
+import hotel.model.dto.RoomDto;
+import hotel.model.dto.UpdateRoomDto;
+import hotel.model.mapper.RoomMapper;
 import hotel.service.RoomService;
 import lombok.AllArgsConstructor;
 
@@ -46,6 +51,7 @@ public class RoomController {
 	@GetMapping()
 	public ResponseEntity<?> getAllRoom() {
 		List<Room> rooms = roomService.getAllRoom();
+
 		return ResponseEntity.ok(rooms);
 	}
 
@@ -56,16 +62,22 @@ public class RoomController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<?> getUserById(@PathVariable String id) {
+	public ResponseEntity<?> getRoomById(@PathVariable String id) {
 		Long idUp = Long.parseLong(id);
 		Room room = roomService.getRoomById(idUp);
 		return ResponseEntity.ok(room);
 	}
 
 	@PutMapping()
-	public ResponseEntity<?> updateUser(@RequestBody Room room) {
+	public ResponseEntity<?> updateRoom(@RequestBody UpdateRoomDto room) {
 		Room roomByid = roomService.getRoomById(room.getId());
-		roomByid = room;
+		roomByid.setName(room.getName());
+		roomByid.setPrice(room.getPrice());
+		roomByid.setImage(room.getImage());
+		roomByid.setQuantity(room.getQuantity().intValue());
+		roomByid.setCategoryId(room.getCategoryId());
+		roomByid.setCategory(room.getCategory());
+		roomByid.setDescription(room.getDescription());
 		Room roomUpdate = roomService.updateRoom(roomByid);
 		return ResponseEntity.ok(roomUpdate);
 	}
@@ -80,5 +92,28 @@ public class RoomController {
 	public ResponseEntity<?> getPageRoom(Pageable pageable) {
 
 		return ResponseEntity.ok(roomService.getPageRoom(pageable));
+	}
+
+	@GetMapping("/roomPageAdmin")
+	public ResponseEntity<?> getPageRoomAdmin(Pageable pageable) {
+
+		return ResponseEntity.ok(roomService.getPageRoomAdmin(pageable));
+	}
+
+	@PutMapping("/locked")
+	public ResponseEntity<?> lockedRoomByAdmin(@RequestBody LockedRoomRequest request) {
+		APIResponse apiResponse = new APIResponse();
+		Room room = roomService.getRoomById(Long.parseLong(request.getId()));
+
+		if (room != null) {
+			room.setLocked(request.isLocked());
+			Room roomUpdate = roomService.updateRoom(room);
+			RoomDto roomDto = RoomMapper.toRoomDto(roomUpdate);
+			apiResponse.setData(roomDto);
+		} else {
+			apiResponse.setStatus(404);
+		}
+
+		return ResponseEntity.ok(apiResponse);
 	}
 }

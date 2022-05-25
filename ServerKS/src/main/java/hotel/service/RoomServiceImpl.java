@@ -1,11 +1,14 @@
 package hotel.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import hotel.common.PaginationMeta;
@@ -69,17 +72,37 @@ public class RoomServiceImpl implements RoomService {
 
 	@Override
 	public RoomData getPageRoom(Pageable pageable) {
-		Page<Room> roomPage = roomRepository.findAll(pageable);
+		Sort sort = Sort.by("locked").descending();
+		Pageable pageable2 = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+		Page<Room> roomPage = roomRepository.findByLocked(pageable2, false);
 		List<Room> rooms = roomPage.getContent();
+		List<Room> main = new ArrayList<>();
 		for (Room room : rooms) {
-			if (room.getQuantity() < 1) {
-				rooms.remove(room);
+			if (room.getQuantity() >= 1 && room.getLocked() == false) {
+				main.add(room);
 			}
 		}
 		PaginationMeta roomPagination = PaginationMeta.createPagination(roomPage);
 		PaginationMetaDto dto = PaginationMetaMapper.toPaginationDto(roomPagination);
+		RoomData roomData = new RoomData(main, dto);
+		return roomData;
+	}
+
+	@Override
+	public RoomData getPageRoomAdmin(Pageable pageable) {
+		Sort sort = Sort.by("price").descending();
+		Pageable pageable2 = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+		Page<Room> roomPage = roomRepository.findAll(pageable2);
+		List<Room> rooms = roomPage.getContent();
+		PaginationMeta roomPagination = PaginationMeta.createPagination(roomPage);
+		PaginationMetaDto dto = PaginationMetaMapper.toPaginationDto(roomPagination);
 		RoomData roomData = new RoomData(rooms, dto);
 		return roomData;
+	}
+
+	@Override
+	public Optional<Room> findRoomByNameOptional(String name) {
+		return roomRepository.findByName(name);
 	}
 
 }

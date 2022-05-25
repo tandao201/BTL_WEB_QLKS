@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 
 <head>
 	<meta charset="utf-8">
-	<title>Đổi mật khẩu</title>
+	<title>Thống kê</title>
 	<meta content="width=device-width, initial-scale=1.0" name="viewport">
 	<meta content="" name="keywords">
 	<meta content="" name="description">
@@ -33,7 +33,7 @@
 	<link rel="stylesheet" th:href="@{/css/account.css}">
 </head>
 
-<body onload="hideEdit()">
+<body>
 	<div class="container-xxl position-relative bg-white d-flex p-0">
 		<!-- Spinner Start -->
 		<div id="spinner"
@@ -48,7 +48,7 @@
 		<!-- Sidebar Start -->
 		<div class="sidebar pe-12 pb-2">
 			<nav class="navbar bg-light navbar-light">
-				<a href="/login/account" id="reload" class="navbar-brand mx-4 mb-3">
+				<a href="/admin/login/account" id="reload" class="navbar-brand mx-5 mb-3">
 					<h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>Tài khoản</h3>
 				</a>
 				<div class="d-flex align-items-center ms-4 mb-4">
@@ -63,20 +63,22 @@
 						<span th:text="${user.role}"></span>
 					</div>
 				</div>
-				<div class="navbar-nav w-100">
+				<div class="navbar-nav w-200">
+
 					<a href="/admin/room-manage" class="nav-item nav-link"><i class="fa-solid fa-door-open"></i>Quản lí
 						phòng</a>
 					<a href="/admin/room-manage/room-category" class="nav-item nav-link"><i
 							class="fa-solid fa-door-open"></i>Loại phòng</a>
-					<a href="/admin/account-manage" class="nav-item nav-link"><i class="fa-solid fa-people-roof"></i>Quản lí khách hàng</a>
-					<a href="/admin/revervation" class="nav-item nav-link "><i
-							class="fa-solid fa-suitcase"></i>Quản lí đặt phòng</a>
-					<a href="/admin/statistic" class="nav-item nav-link "><i class="fa-solid fa-chart-simple"></i>Thống kê</a>
-							<hr>
+					<a href="/admin/account-manage" class="nav-item nav-link"><i
+							class="fa-solid fa-people-roof"></i>Quản lí khách hàng</a>
+					<a href="/admin/revervation" class="nav-item nav-link "><i class="fa-solid fa-suitcase"></i>Quản lí
+						đặt phòng</a>
+					<a href="/admin/statistic" class="nav-item nav-link active"><i class="fa-solid fa-chart-simple"></i>Thống kê</a>
+					<hr>
 					<a th:href="@{/}" class="nav-item nav-link"><i class="fa-solid fa-house"></i>Trang chủ</a>
 					<a href="/admin/login/account" class="nav-item nav-link "><i class="fa-solid fa-user"></i>Cá
 						nhân</a>
-					<a href="/admin/password" class="nav-item nav-link active"><i class="fa-solid fa-lock"></i>Đổi mật khẩu</a>
+					<a href="/admin/password" class="nav-item nav-link"><i class="fa-solid fa-lock"></i>Đổi mật khẩu</a>
 
 					<form id="myform" method="post" action="/admin/login/logout"></form>
 					<a onclick="document.getElementById('myform').submit();" class="nav-item nav-link"><i
@@ -89,7 +91,7 @@
 
 
 		<!-- Content Start -->
-		<div class="content" style="position: relative;">
+		<div class="content">
 			<!-- Navbar Start -->
 			<nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
 				<a href="index.html" class="navbar-brand d-flex d-lg-none me-4">
@@ -110,84 +112,51 @@
 			<!-- Navbar End -->
 
 
-
-			<div th:if="${error!=null}">
-				<div id="error" class="alert alert-danger" role="alert" th:text="${error}">
-
-				</div>
-			</div>
-			
-			<!-- account profile start -->
-			<div class="page-content page-container" id="page-content">
-				<div class="padding">
-					<div class="row container d-flex justify-content-center">
-						<div class="col-xl-6 col-md-12">
-							<div class="card user-card-full">
-								<div class="row m-l-0 m-r-0">
-									<div class="col-sm-4 bg-c-lite-green user-profile">
-										<div class="card-block text-center text-white">
-											<div class="m-b-25">
-												<img id="avatar" th:src="${user.avatar}" class="img-radius"
-													alt="User-Profile-Image">
-											</div>
-											<h4 class="f-w-600" th:text="${user.name}"></h4>
-											<i class=" mdi mdi-square-edit-outline feather icon-edit m-t-10 f-16"></i>
-										</div>
-									</div>
-									<div class="col-sm-8">
-										<div class="card-block">
-											<h6 class="m-b-20 p-b-5 b-b-default f-w-600">Thay đổi mật khẩu</h6>
-											<div class="row">
-												<form method="post" action="/admin/password">
-													<div class="col-sm-6">
-														<input name="username" size="50" type="hidden"
-															class="text f-w-400" th:value="${user.username}">
-														<p class="m-b-10 f-w-600">Mật khẩu hiện tại</p>
-														<input name="passwordCur"  type="password" size="50"
-															class="text f-w-400" required>
-													</div>
-													<div class="col-sm-6">
-														<p class="m-b-10 f-w-600">Mật khẩu mới</p>
-														<input name="passwordNew" id="passwordNew" type="password" size="50"
-															class="text f-w-400" required></input>
-													</div>
-													<div class="col-sm-6">
-														<p class="m-b-10 f-w-600">Nhập lại mật khẩu mới</p>
-														<input name="passwordNewRe" id="passwordNewRe" type="password" size="50"
-															class="text f-w-400" required></input>
-													</div>
-													<button type="submit" onclick="validatePassword()"
-														style="margin-top: 8pt;"
-														class="btn btn-outline-success">Lưu</button>
-													<button type="button" id="bt-huy" style="margin-top: 8pt;"
-														class="btn btn-outline-danger">Hủy</button>
-												</form>
-											</div>
-
-										</div>
-									</div>
-								</div>
+			<!-- Sale & Revenue Start -->
+			<div class="container-fluid pt-4 px-4">
+				<div class="row g-4">
+					<div class="col-sm-6 col-xl-3">
+						<div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+							<i class="fa fa-chart-line fa-3x text-primary"></i>
+							<div class="ms-3">
+								<p class="mb-2">Doanh thu ($)</p>
+								<h6 class="mb-0" th:text="${statistic.turnover}"></h6>
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-			<!-- account profile end -->
-
-
-
-			<!-- Footer Start -->
-			<div style="position: absolute;bottom:0;" class="container-fluid pt-4 px-4">
-				<div class="bg-light rounded-top p-4">
-					<div class="row">
-						<div class="col-12 col-sm-6 text-center text-sm-start">
-							&copy; <a href="#">Your Site Name</a>, All Right Reserved.
+					<div class="col-sm-6 col-xl-3">
+						<div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+							<i class="fa fa-chart-bar fa-3x text-primary"></i>
+							<div class="ms-3">
+								<p class="mb-2">Đơn đặt phòng</p>
+								<h6 class="mb-0" th:text="${statistic.totalRevervation}"></h6>
+							</div>
 						</div>
-						
 					</div>
+					<div class="col-sm-6 col-xl-3">
+						<div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+							<i class="fa fa-chart-area fa-3x text-primary"></i>
+							<div class="ms-3">
+								<p class="mb-2">Tài khoản</p>
+								<h6 class="mb-0" th:text="${statistic.totalAccount}"></h6>
+							</div>
+						</div>
+					</div>
+
 				</div>
 			</div>
-			<!-- Footer End -->
+			<!-- Sale & Revenue End -->
+
+
+			<!-- Sales Chart Start -->
+			<h2 style="margin: 20pt;" >Doanh thu theo tháng năm 2022</h2 >
+			<div>
+				<canvas id="myChart" style="width:100%;max-width:700px;margin-left: 20pt;"></canvas>
+			</div>
+			
+			<!-- Sales Chart End -->
+
+
 		</div>
 		<!-- Content End -->
 
@@ -209,38 +178,25 @@
 
 	<!-- Template Javascript -->
 	<script th:src="@{/admin/js/main.js}"></script>
+	<script th:src="@{https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js}">
 
-	<script>
+	</script>
 
-		$("#bt-edit").click(function (e) {
-			e.preventDefault();
-			$("#page-content").hide();
-			$("#page-content-edit").show();
-		});
+	<script th:inline="javascript">
+		var xValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+		var yValues = /*[[${turnover}]]*/ null;
 
-		$("#bt-huy").click(function (e) {
-			e.preventDefault();
-			window.location = "http://localhost:8080/admin/login/account";
-		});
-
-
-		function validatePassword() {
-			var password = document.getElementById("passwordNew")
-				, confirm_password = document.getElementById("passwordNewRe");
-			if (password.value != confirm_password.value) {
-				confirm_password.setCustomValidity("Mật khẩu không khớp!");
-				return false;
-			} else {
-				confirm_password.setCustomValidity('');
-				return true;
-			}
-		}
-		$(function () {
-
-			setTimeout(function () {
-				$('#error').fadeOut('slow');
-			}, 2000);
-
+		new Chart("myChart", {
+			type: "line",
+			data: {
+				labels: xValues,
+				datasets: [{
+					label: "Doanh thu",
+					borderColor: "rgba(0,0,0,0.1)",
+					data: yValues
+				}]
+			},
+			options: {}
 		});
 	</script>
 </body>

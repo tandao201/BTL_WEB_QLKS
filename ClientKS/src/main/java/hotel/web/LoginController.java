@@ -4,8 +4,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import hotel.common.APIResponse;
+import hotel.model.GetCurrentUserRequest;
 import hotel.model.LoginRequestDto;
 import hotel.model.LogoutRequestDto;
 import hotel.model.SignUpRequestDto;
@@ -31,8 +36,8 @@ public class LoginController {
 	private RestTemplate rest = new RestTemplate();
 
 	@GetMapping()
-	public String showLoginForm(Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String showLoginForm(Model model, @CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		if (curUser == null) {
 			model.addAttribute("signupDto", new SignUpRequestDto());
 			model.addAttribute("loginRequest", new LoginRequestDto());
@@ -47,7 +52,7 @@ public class LoginController {
 	}
 
 	@PostMapping()
-	public String login(LoginRequestDto loginRequestDto, Model model)
+	public String login(LoginRequestDto loginRequestDto, Model model, HttpServletResponse response)
 			throws JsonMappingException, JsonProcessingException {
 
 		loginRequestDto.setRole("USER");
@@ -67,6 +72,9 @@ public class LoginController {
 			model.addAttribute("error", curUser.get("error"));
 			return "customer/login";
 		}
+		Cookie cookie = new Cookie("user", curUser.get("username"));
+		cookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+		response.addCookie(cookie);
 		UserDto user = setCurUser(curUser);
 		model.addAttribute("user", user);
 
@@ -74,8 +82,8 @@ public class LoginController {
 	}
 
 	@GetMapping("/account")
-	public String dashboard(Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+	public String dashboard(Model model, @CookieValue(value = "user", defaultValue = "no user") String username) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		if (curUser == null) {
 			model.addAttribute("signupDto", new SignUpRequestDto());
 			model.addAttribute("loginRequest", new LoginRequestDto());
@@ -90,14 +98,13 @@ public class LoginController {
 	}
 
 	@PostMapping("/logout")
-	public String logout(LogoutRequestDto dto, Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
-		if (curUser == null) {
+	public String logout(LogoutRequestDto dto, Model model,
+			@CookieValue(value = "user", defaultValue = "no user") String username) {
+		if (username == null) {
 			return "customer/index";
 		} else {
-			String urlCurUser = "http://localhost:8081/login/currentUser";
-			APIResponse apiResponse = rest.postForObject(urlCurUser, "USER", APIResponse.class);
-			dto.setUsername(curUser.get("username"));
+
+			dto.setUsername(username);
 			String url = "http://localhost:8081/login/logout";
 			APIResponse apiResponseLogout = rest.postForObject(url, dto, APIResponse.class);
 			String data = apiResponseLogout.getData().toString();
@@ -114,8 +121,9 @@ public class LoginController {
 	@PostMapping("/update")
 	public String updateCurUser(@RequestParam("username") String username, @RequestParam("email") String email,
 			@RequestParam("phone") String phone, @RequestParam("avatar") String avatar,
-			@RequestParam("name") String name, Model model) {
-		LinkedHashMap<String, String> curUser = haveCurrentUser();
+			@RequestParam("name") String name, Model model,
+			@CookieValue(value = "user", defaultValue = "no user") String usernameCookie) {
+		LinkedHashMap<String, String> curUser = haveCurrentUser(username);
 		UpdateRequestDto updateRequestDto = new UpdateRequestDto(username, email, phone, avatar, name,
 				curUser.get("role"));
 		String url = "http://localhost:8081/users";
@@ -137,9 +145,10 @@ public class LoginController {
 	}
 
 	@SuppressWarnings("unchecked")
-	public LinkedHashMap<String, String> haveCurrentUser() {
+	public LinkedHashMap<String, String> haveCurrentUser(String username) {
 		String urlCurUser = "http://localhost:8081/login/currentUser";
-		APIResponse apiResponse = rest.postForObject(urlCurUser, "USER", APIResponse.class);
+		GetCurrentUserRequest request = new GetCurrentUserRequest("USER", username);
+		APIResponse apiResponse = rest.postForObject(urlCurUser, request, APIResponse.class);
 		LinkedHashMap<String, String> curUser = (LinkedHashMap<String, String>) apiResponse.getData();
 		if (curUser.get("error") != null) {
 			return null;

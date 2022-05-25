@@ -31,7 +31,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 	@Query(value = "select * from room order by rand() limit 3", nativeQuery = true)
 	List<Room> findRoomSuggest();
 
-	@Query(value = "select * from room where quantity > 1", nativeQuery = true)
-	Page<Room> findAllRoomRemain(Pageable pageable);
+	Page<Room> findByLocked(Pageable pageable, boolean locked);
 
 }
